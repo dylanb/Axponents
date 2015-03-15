@@ -1,0 +1,169 @@
+<!doctype html>
+<html>
+	<head>
+		<style>
+		/*
+		 * Show how to customize the look of the aria-* components
+		 */
+
+		/*
+		 * This is the 50% blue menu
+		 */
+		.custom aria-menuitem::shadow div {
+			color:rgb(0, 0, 97);
+			background-color:rgb(207, 242, 253);
+		}
+		.custom aria-menu > aria-menuitem:last-of-type::shadow div {
+			border-bottom-right-radius: 1.5em;
+			border-bottom-left-radius: 1.5em;
+		}
+		.custom aria-menu::shadow div {
+			border-bottom-right-radius: 1.5em;
+			border-bottom-left-radius: 1.5em;
+			overflow:hidden;
+		}
+
+		/*
+		 * This is the popup menu
+		 */
+		.popup aria-menuitem::shadow div {
+			color:rgb(97, 0, 0);
+			background-color:#fff;
+		}
+		.popup aria-menu::shadow div {
+			border-radius: 5px;
+			border-radius: 5px;
+			overflow:hidden;
+			border:2px rgb(97, 0, 0) solid;
+		}
+		.popup {
+			background-color:#e3e3e3;
+			padding:5px;
+			box-shadow: 3px 3px 5px 6px rgb(136, 88, 1);
+		}
+		</style>
+		<link rel="import" href="aria-menubar.html">
+		<link rel="import" href="aria-menuitem.html">
+		<link rel="import" href="aria-menu.html">
+	</head>
+	<body>
+		<div><a href="#">before</a></div>
+		<div>
+			<button id="popup">popup</button>
+		</div>
+		<div class="popup" id="popupMenu" style="width:20%;display:none;position:absolute;">
+			<aria-menu class="aria-menu" popup>
+				<aria-menuitem class="aria-menuitem">
+					<label>One One</label>
+				</aria-menuitem>
+				<aria-menuitem class="aria-menuitem">
+					<label>One Two</label>
+				</aria-menuitem>
+				<aria-menuitem class="aria-menuitem">
+					<label>One Three</label>
+				</aria-menuitem>
+			</aria-menu>
+		</div>
+		<script>
+		popup.addEventListener('click', function (e) {
+			popupMenu.style.display = "block";
+			popupMenu.querySelector('aria-menu').focus();
+			console.log('caught click');
+		}, false);
+		popupMenu.addEventListener('aria-menuclose', function (e) {
+			console.log('caught aria-menuclose');
+			popupMenu.style.display = 'none';
+			popup.focus();
+		}, false);
+		</script>
+		<aria-menubar class="aria-menubar">
+			<aria-menuitem class="aria-menuitem" id="o">
+				<label>One</label>
+				<aria-menu class="aria-menu">
+					<aria-menuitem class="aria-menuitem" id="oo">
+						<label>One One</label>
+					</aria-menuitem>
+					<aria-menuitem class="aria-menuitem">
+						<label>One Two</label>
+					</aria-menuitem>
+					<aria-menuitem class="aria-menuitem">
+						<label>One Three</label>
+					</aria-menuitem>
+				</aria-menu>
+			</aria-menuitem>
+			<aria-menuitem class="aria-menuitem">
+				<label>Two</label>
+				<aria-menu class="aria-menu">
+					<aria-menuitem class="aria-menuitem">
+						<label>Two One</label>
+					</aria-menuitem>
+					<aria-menuitem class="aria-menuitem">
+						<label>Two Two</label>
+					</aria-menuitem>
+				</aria-menu>
+			</aria-menuitem>
+			<aria-menuitem class="aria-menuitem">
+				<label>Three</label>
+				<aria-menu class="aria-menu">
+					<aria-menuitem class="aria-menuitem">
+						<label>Three One</label>
+					</aria-menuitem>
+					<aria-menuitem class="aria-menuitem">
+						<label>Three Two</label>
+					</aria-menuitem>
+				</aria-menu>
+			</aria-menuitem>
+		</aria-menubar>
+		<div><a href="#">between</a></div>
+		<div class="custom" style="width:50%;margin-left:25%">
+			<aria-menubar class="aria-menubar">
+				<aria-menuitem class="aria-menuitem">
+					<label>One</label>
+					<aria-menu class="aria-menu">
+						<aria-menuitem class="aria-menuitem">
+							<label>One One</label>
+						</aria-menuitem>
+						<aria-menuitem class="aria-menuitem">
+							<label>One Two</label>
+						</aria-menuitem>
+						<aria-menuitem class="aria-menuitem">
+							<label>One Three</label>
+						</aria-menuitem>
+					</aria-menu>
+				</aria-menuitem>
+				<aria-menuitem class="aria-menuitem">
+					<label>Two</label>
+					<aria-menu class="aria-menu">
+						<aria-menuitem class="aria-menuitem">
+							<label>Two One</label>
+						</aria-menuitem>
+						<aria-menuitem class="aria-menuitem">
+							<label>Two Two</label>
+						</aria-menuitem>
+					</aria-menu>
+				</aria-menuitem>
+				<aria-menuitem class="aria-menuitem">
+					<label>Three</label>
+					<aria-menu class="aria-menu">
+						<aria-menuitem class="aria-menuitem">
+							<label>Three One</label>
+						</aria-menuitem>
+						<aria-menuitem class="aria-menuitem">
+							<label>Three Two</label>
+						</aria-menuitem>
+					</aria-menu>
+				</aria-menuitem>
+			</aria-menubar>
+		</div>
+		<div><a href="#">after</a></div>
+		<script>
+		document.getElementById('o').addEventListener('click', function (e) {
+			console.log('clicked o');
+		}, false);
+		document.getElementById('oo').addEventListener('click', function (e) {
+			console.log('clicked oo');
+			e.stopPropagation();
+		}, false);
+		</script>
+	</body>
+</html>

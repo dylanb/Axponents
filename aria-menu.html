@@ -1,0 +1,139 @@
+<template id="ariamenu">
+	<div role="menu"><content></content></div>
+	<style>
+	* {
+		box-sizing: border-box;
+	}
+	*:before, *:after {
+		box-sizing: inherit;
+	}
+	div {
+		padding: 0;
+		margin: 0;
+		float:left;
+		width:100%;
+	}
+	</style>
+</template>
+<script>
+(function () {
+	var importDoc = document.currentScript.ownerDocument; // importee
+	var AriaMenu = Object.create(HTMLElement.prototype);
+	AriaMenu.createdCallback = function() {
+		var shadowRoot = this.createShadowRoot();
+		var template = importDoc.querySelector('#ariamenu');
+		var clone = document.importNode(template.content, true);
+		shadowRoot.appendChild(clone);
+		this.div = shadowRoot.querySelector('div');
+		var content = shadowRoot.querySelector('content');
+		this.nodes = content.getDistributedNodes();
+		this.addEventListener('keydown', function (e) {
+			var which = e.which || e.keyCode;
+			var handled = false;
+			if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+				return;
+			}
+			switch(which) {
+				case 37: // left
+				case 27: // ESC
+					// close self
+					this.close();
+					handled = true;
+					break;
+				case 38: // up
+					this.focusPrev();
+					handled = true;
+					break;
+				case 39: // right
+					handled = true;
+					break;
+				case 40: // down
+					this.focusNext();
+					handled = true;
+					break;
+			}
+			if (handled) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+		});
+		this.addEventListener('click', function (e) {
+			this.close();
+		}, false);
+		this.addEventListener('aria-lostfocus', function (e) {
+			this.close();
+		}, false);
+	};
+	AriaMenu.focus = function () {
+		this.focusFirst();
+	};
+	AriaMenu.focusFirst = function () {
+		for (var i = 0; i < this.nodes.length; i++) {
+			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+				this.current = this.nodes[i];
+				this.nodes[i].takeFocus();
+				break;
+			}
+		}
+	};
+	AriaMenu.focusLast = function () {
+		for (var i = this.nodes.length - 1; i >= 0; i--) {
+			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+				this.current = this.nodes[i];
+				this.nodes[i].takeFocus();
+				break;
+			}
+		}
+	};
+	AriaMenu.focusNext = function () {
+		for (var i = 0; i < this.nodes.length; i++) {
+			if (this.nodes[i] === this.current) {
+				i++;
+				break;
+			}
+		}
+		this.current && this.current.removeFocus();
+		for (; i < this.nodes.length; i++) {
+			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+				this.current = this.nodes[i];
+				this.nodes[i].takeFocus();
+				break;
+			}
+		}
+		if (i === this.nodes.length) {
+			this.focusFirst();
+		}
+	};
+	AriaMenu.focusPrev = function () {
+		for (var i = this.nodes.length - 1; i >= 0; i--) {
+			if (this.nodes[i] === this.current) {
+				i--;
+				break;
+			}
+		}
+		this.current && this.current.removeFocus();
+		for (; i >= 0; i--) {
+			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+				this.current = this.nodes[i];
+				this.nodes[i].takeFocus();
+				break;
+			}
+		}
+		if (i === -1) {
+			this.focusLast();
+		}
+	};
+	AriaMenu.open = function () {
+		this.setAttribute('aria-expanded', 'true');
+		this.focusFirst();
+	};
+	AriaMenu.close = function () {
+		// tell parent we closed
+		this.setAttribute('aria-expanded', 'false');
+		this.parentNode.dispatchEvent(new Event('aria-menuclose'));
+	};
+	document.registerElement('aria-menu', {
+		prototype: AriaMenu
+	});
+}());
+</script>
