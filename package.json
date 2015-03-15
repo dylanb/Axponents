@@ -1,0 +1,31 @@
+{
+  "name": "Axponents",
+  "version": "1.0.0",
+  "description": "Accessible Web Components",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dylanb/Axponents.git"
+  },
+  "keywords": [
+    "Accessibility",
+    "Web",
+    "Components",
+    "Polymer",
+    "Angularjs",
+    "2",
+    "Angular2",
+    "Angularjs2",
+    "JavaScript",
+    "a11y"
+  ],
+  "author": "Dylan Barrell",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dylanb/Axponents/issues"
+  },
+  "homepage": "https://github.com/dylanb/Axponents"
+}

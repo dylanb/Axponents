@@ -25,25 +25,33 @@
 (function(){
 	var importDoc = document.currentScript.ownerDocument; // importee
 	var AriaMenubar = Object.create(HTMLElement.prototype);
+	/**
+	 * AriaMenubar Component
+	 *
+	 * createdCallback initializes the shadow DOM
+	 *
+	 * @class aria-menubar
+	 * @constructor
+	 */
 	AriaMenubar.createdCallback = function() {
 		var shadowRoot = this.createShadowRoot();
 		var template = importDoc.querySelector('#ariamenubar');
 		var clone = document.importNode(template.content, true);
 		shadowRoot.appendChild(clone);
-		this.div = shadowRoot.querySelector('div');
-		var content = this.div.querySelector('content');
-		this.nodes = content.getDistributedNodes();
+		var div = shadowRoot.querySelector('div');
+		var content = div.querySelector('content');
+		var nodes = content.getDistributedNodes();
 		// set the width of the children to responsively fill the
 		// whole menu bar
 		var children = 0;
-		for (var i = 0; i < this.nodes.length; i++) {
-			if (this.nodes[i].nodeType === 1) {
+		for (var i = 0; i < nodes.length; i++) {
+			if (nodes[i].nodeType === 1) {
 				children++;
 			}
 		}
-		for (i = 0; i < this.nodes.length; i++) {
-			if (this.nodes[i].nodeType === 1) {
-				this.nodes[i].setAttribute('width', 100/children + '%');
+		for (i = 0; i < nodes.length; i++) {
+			if (nodes[i].nodeType === 1) {
+				nodes[i].setAttribute('width', 100/children + '%');
 			}
 		}
 	};

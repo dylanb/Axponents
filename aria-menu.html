@@ -1,3 +1,13 @@
+<script>
+/*
+ * Copyright (C) 2015 Dylan Barrell, All Rights Reserved
+ *
+ * See the licence file asssociated with this project for details on
+ * redistribution. This copyright message MUST appear in ALL distributed
+ * forms of this file
+ *
+ */
+</script>
 <template id="ariamenu">
 	<div role="menu"><content></content></div>
 	<style>
@@ -19,6 +29,21 @@
 (function () {
 	var importDoc = document.currentScript.ownerDocument; // importee
 	var AriaMenu = Object.create(HTMLElement.prototype);
+	/**
+	 * AriaMenu Component
+	 *
+	 * createdCallback initializes the shadow DOM and sets up the internal members:
+	 * - div - the DOM component with the role="menu"
+	 * - nodes - the distributed nodes containing the menu items
+	 *
+	 * It also registers the event handlers for:
+	 * - keydown - manage the navigation through the menu items and the closing of the menu through ESCAPE or LEFT
+	 * - click - close the menu when something is selected on click
+	 * - aria-lostfocus - close the menu when focus is lost
+	 *
+	 * @class aria-menu
+	 * @constructor
+	 */
 	AriaMenu.createdCallback = function() {
 		var shadowRoot = this.createShadowRoot();
 		var template = importDoc.querySelector('#ariamenu');
@@ -41,14 +66,14 @@
 					handled = true;
 					break;
 				case 38: // up
-					this.focusPrev();
+					this._focusPrev();
 					handled = true;
 					break;
 				case 39: // right
 					handled = true;
 					break;
 				case 40: // down
-					this.focusNext();
+					this._focusNext();
 					handled = true;
 					break;
 			}
@@ -64,28 +89,61 @@
 			this.close();
 		}, false);
 	};
+	/**
+	 * Fired when the menu closes
+	 *
+	 * @event aria-menuclose
+	 */
+	AriaMenu.ARIA_MENU_CLOSE = 'aria-menuclose';
+	/**
+	 * sets the focus to the menu
+	 *
+	 * @method focus
+	 * @return undefined
+	 */
 	AriaMenu.focus = function () {
-		this.focusFirst();
+		this._focusFirst();
 	};
-	AriaMenu.focusFirst = function () {
+	/**
+	 * sets the focus to the first menu item in the menu
+	 *
+	 * @method _focusFirst
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenu._focusFirst = function () {
 		for (var i = 0; i < this.nodes.length; i++) {
 			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
 				this.current = this.nodes[i];
-				this.nodes[i].takeFocus();
+				this.nodes[i].focus();
 				break;
 			}
 		}
 	};
-	AriaMenu.focusLast = function () {
+	/**
+	 * sets the focus to the last menu item in the menu
+	 *
+	 * @method _focusLast
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenu._focusLast = function () {
 		for (var i = this.nodes.length - 1; i >= 0; i--) {
 			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
 				this.current = this.nodes[i];
-				this.nodes[i].takeFocus();
+				this.nodes[i].focus();
 				break;
 			}
 		}
 	};
-	AriaMenu.focusNext = function () {
+	/**
+	 * advances the focus to the next menu item in the menu and wraps around at the end
+	 *
+	 * @method _focusNext
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenu._focusNext = function () {
 		for (var i = 0; i < this.nodes.length; i++) {
 			if (this.nodes[i] === this.current) {
 				i++;
@@ -96,15 +154,22 @@
 		for (; i < this.nodes.length; i++) {
 			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
 				this.current = this.nodes[i];
-				this.nodes[i].takeFocus();
+				this.nodes[i].focus();
 				break;
 			}
 		}
 		if (i === this.nodes.length) {
-			this.focusFirst();
+			this._focusFirst();
 		}
 	};
-	AriaMenu.focusPrev = function () {
+	/**
+	 * sets the focus to the previous menu item in the menu and wraps around at the end
+	 *
+	 * @method _focusPrev
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenu._focusPrev = function () {
 		for (var i = this.nodes.length - 1; i >= 0; i--) {
 			if (this.nodes[i] === this.current) {
 				i--;
@@ -115,22 +180,34 @@
 		for (; i >= 0; i--) {
 			if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
 				this.current = this.nodes[i];
-				this.nodes[i].takeFocus();
+				this.nodes[i].focus();
 				break;
 			}
 		}
 		if (i === -1) {
-			this.focusLast();
+			this._focusLast();
 		}
 	};
+	/**
+	 * Opens the menu and places the focus on the first item in the menu
+	 *
+	 * @method open
+	 * @return undefined
+	 */
 	AriaMenu.open = function () {
 		this.setAttribute('aria-expanded', 'true');
-		this.focusFirst();
+		this._focusFirst();
 	};
+	/**
+	 * Closes the menu and fires the 'aria-menuclose' event on the parent node
+	 *
+	 * @method close
+	 * @return undefined
+	 */
 	AriaMenu.close = function () {
 		// tell parent we closed
 		this.setAttribute('aria-expanded', 'false');
-		this.parentNode.dispatchEvent(new Event('aria-menuclose'));
+		this.parentNode.dispatchEvent(new Event(this.ARIA_MENU_CLOSE));
 	};
 	document.registerElement('aria-menu', {
 		prototype: AriaMenu

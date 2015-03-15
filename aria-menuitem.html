@@ -23,6 +23,7 @@
 		display:inline-block;
 	}
 	span {
+		display: none;
 		width: 100%;
 	}
 	div.open {
@@ -37,10 +38,7 @@
 		background: #CCCCCC;
 		color: #000000;
 	}
-	#nextmenu {
-		display: none;
-	}
-	div.open + #nextmenu {
+	div.open + span {
 		display:block;
 		position:absolute;
 	}
@@ -72,6 +70,24 @@
 	}
 	var importDoc = document.currentScript.ownerDocument; // importee
 	var AriaMenuitem = Object.create(HTMLElement.prototype);
+	/**
+	 * AriaMenuitem Component
+	 *
+	 * createdCallback initializes the shadow DOM and sets up the internal members:
+	 * - div - the DOM component with the role="menuitem"
+	 * - nodes - the distributed nodes containing potential sub-menu
+	 * - span - the DOM component that will contain the sub-menu
+	 * - hasPopup - boolean indicating whether there is a sub-menu
+	 * - isOpen - boolean tracking the open state
+	 *
+	 * It also registers the event handlers for:
+	 * - keydown - manage the opening of sub-menu by keyboard, tabbing off, and navigation within siblings if in a menubar (todo: move to AriaMenubar?)
+	 * - click - if clicked and there is a sub-menu, toggle it, otherwise trigger a click on the parentNode
+	 * - aria-menuclose - the sub-menu was closed
+	 *
+	 * @class aria-menuitem
+	 * @constructor
+	 */
 	AriaMenuitem.createdCallback = function() {
 		this.hasPopup = false;
 		var shadowRoot = this.createShadowRoot();
@@ -88,7 +104,6 @@
 		// responsive
 		var coords = getElementCoordinates(this.div);
 		this.span.style.width = coords.width + 'px';
-		this.nextmenu = shadowRoot.querySelector('#nextmenu');
 		if (!this.previousElementSibling &&
 			(this.parentNode.nodeName !== 'ARIA-MENU' || this.parentNode.hasAttribute('popup'))) {
 			// only make this element focusable if it is the topmost first element in the tree
@@ -129,7 +144,7 @@
 				this.div.focus();
 				this.parentNode.dispatchEvent(new Event('click'));
 			}
-			this.closeOthers();
+			this._closeOthers();
 		}, false);
 		this.addEventListener('aria-menuclose', function (e) {
 			// listen for the close of a child
@@ -144,17 +159,17 @@
 			}
 			switch(which) {
 				case 9: // tab
-					this.parentNode.dispatchEvent(new Event('aria-lostfocus'));
+					this.parentNode.dispatchEvent(new Event(this.ARIA_LOST_FOCUS));
 					return;
 				case 37: // left
 					if (this.horizontal) {
-						this.focusPrev();
+						this._focusPrev();
 						handled = true;
 					}
 					break;
 				case 39: // right
 					if (this.horizontal) {
-						this.focusNext();
+						this._focusNext();
 						handled = true;
 					}
 					break;
@@ -176,7 +191,20 @@
 			}
 		});
 	};
-	AriaMenuitem.closeOthers = function () {
+	/**
+	 * Fired when focus will be lost
+	 *
+	 * @event aria-lostfocus
+	 */
+	AriaMenuitem.ARIA_LOST_FOCUS = 'aria-lostfocus';
+	/**
+	 * Closes peer menuitems
+	 *
+	 * @method _closeOthers
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._closeOthers = function () {
 		var prev = this.previousElementSibling;
 		while (prev) {
 			prev.close && prev.close();
@@ -188,6 +216,12 @@
 			next = next.nextElementSibling;
 		}
 	};
+	/**
+	 * Opens the menuitem if it has a sub-menu, otherwise does nothing
+	 *
+	 * @method open
+	 * @return undefined
+	 */
 	AriaMenuitem.open = function () {
 		var coords;
 		if (this.hasPopup) {
@@ -196,19 +230,37 @@
 			this.div.tabIndex = -1;
 			this.nodes[0].open();
 			coords = getElementCoordinates(this.div);
-			this.nextmenu.style.left = coords.left + 'px';
-			this.nextmenu.style.top = coords.top + coords.height + 'px';
+			this.span.style.left = coords.left + 'px';
+			this.span.style.top = coords.top + coords.height + 'px';
 		}
 	};
-	AriaMenuitem.takeFocus = function () {
+	/**
+	 * focuses the menu item and closes peer items
+	 *
+	 * @method _takeFocus
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._takeFocus = function () {
 		this.div.tabIndex = 0;
 		this.div.focus();
-		this.closeOthers();
+		this._closeOthers();
 	};
 
-	 // create a synonym so we mimic the DOM APIs
-	AriaMenuitem.focus = AriaMenuitem.takeFocus;
+	/**
+	 * focuses the menu item
+	 *
+	 * @method focus
+	 * @return undefined
+	 */
+	AriaMenuitem.focus = AriaMenuitem._takeFocus;
 
+	/**
+	 * closes the menu item
+	 *
+	 * @method close
+	 * @return undefined
+	 */
 	AriaMenuitem.close = function (focus) {
 		if (this.hasPopup) {
 			this.isOpen = false;
@@ -222,58 +274,93 @@
 		}
 	};
 
-	AriaMenuitem.focusNext = function () {
+	/**
+	 * focuses the next menu item and wraps around at the limit
+	 *
+	 * @method _focusNext
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._focusNext = function () {
 		var next = this.nextElementSibling;
 		while (next) {
-			if (next.takeFocus) {
-				next.takeFocus();
+			if (next._takeFocus) {
+				next._takeFocus();
 				this.div.tabIndex = -1;
 				return;
 			}
 			next = next.nextElementSibling;
 		}
-		this.focusFirst();
+		this._focusFirst();
 	};
 
-	AriaMenuitem.removeFocus = function () {
+	/**
+	 * sets the tabindex to -1 so that the item is no longer naturally focusable
+	 *
+	 * @method _removeFocus
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._removeFocus = function () {
 		this.div.tabIndex = -1;
 	};
 
-	AriaMenuitem.focusFirst = function () {
+	/**
+	 * focuses the first menu item
+	 *
+	 * @method _focusFirst
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._focusFirst = function () {
 		var prev = this;
 		var first;
 		while (prev) {
-			if (prev.takeFocus) {
+			if (prev._takeFocus) {
 				first = prev;
 			}
 			prev = prev.previousElementSibling;
 		}
-		first.takeFocus();
+		first._takeFocus();
 	};
 
-	AriaMenuitem.focusPrev = function () {
+	/**
+	 * focuses the previous menu item and wraps around at the limit
+	 *
+	 * @method _focusPrev
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._focusPrev = function () {
 		var prev = this.previousElementSibling;
 		while (prev) {
-			if (prev.takeFocus) {
-				prev.takeFocus();
+			if (prev._takeFocus) {
+				prev._takeFocus();
 				this.div.tabIndex = -1;
 				return;
 			}
 			prev = prev.previousElementSibling;
 		}
-		this.focusLast();
+		this._focusLast();
 	};
 
-	AriaMenuitem.focusLast = function () {
+	/**
+	 * focuses the last menu item
+	 *
+	 * @method _focusLast
+	 * @private
+	 * @return undefined
+	 */
+	AriaMenuitem._focusLast = function () {
 		var next = this;
 		var last;
 		while (next) {
-			if (next.takeFocus) {
+			if (next._takeFocus) {
 				last = next;
 			}
 			next = next.nextElementSibling;
 		}
-		last.takeFocus();
+		last._takeFocus();
 	};
 
 	document.registerElement('aria-menuitem', {
