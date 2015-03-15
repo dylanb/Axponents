@@ -49,45 +49,52 @@
 		var template = importDoc.querySelector('#ariamenu');
 		var clone = document.importNode(template.content, true);
 		shadowRoot.appendChild(clone);
-		this.div = shadowRoot.querySelector('div');
-		var content = shadowRoot.querySelector('content');
+	};
+	function handleClick(e) {
+		this.close();
+	};
+	function handleKeydown(e) {
+		var which = e.which || e.keyCode;
+		var handled = false;
+		if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+			return;
+		}
+		switch(which) {
+			case 37: // left
+			case 27: // ESC
+				// close self
+				this.close();
+				handled = true;
+				break;
+			case 38: // up
+				this._focusPrev();
+				handled = true;
+				break;
+			case 39: // right
+				handled = true;
+				break;
+			case 40: // down
+				this._focusNext();
+				handled = true;
+				break;
+		}
+		if (handled) {
+			e.stopPropagation();
+			e.preventDefault();
+		}
+	}
+	AriaMenu.attachedCallback = function () {
+		this.div = this.shadowRoot.querySelector('div');
+		var content = this.shadowRoot.querySelector('content');
 		this.nodes = content.getDistributedNodes();
-		this.addEventListener('keydown', function (e) {
-			var which = e.which || e.keyCode;
-			var handled = false;
-			if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
-				return;
-			}
-			switch(which) {
-				case 37: // left
-				case 27: // ESC
-					// close self
-					this.close();
-					handled = true;
-					break;
-				case 38: // up
-					this._focusPrev();
-					handled = true;
-					break;
-				case 39: // right
-					handled = true;
-					break;
-				case 40: // down
-					this._focusNext();
-					handled = true;
-					break;
-			}
-			if (handled) {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-		});
-		this.addEventListener('click', function (e) {
-			this.close();
-		}, false);
-		this.addEventListener('aria-lostfocus', function (e) {
-			this.close();
-		}, false);
+		this.addEventListener('keydown', handleKeydown, false);
+		this.addEventListener('click', handleClick, false);
+		this.addEventListener('aria-lostfocus', handleClick, false);
+	};
+	AriaMenu.detachedCallback = function () {
+		this.removeEventListener('keydown', handleKeydown, false);
+		this.removeEventListener('click', handleClick, false);
+		this.removeEventListener('aria-lostfocus', handleClick, false);
 	};
 	/**
 	 * Fired when the menu closes
@@ -209,7 +216,7 @@
 		this.setAttribute('aria-expanded', 'false');
 		this.parentNode.dispatchEvent(new Event(this.ARIA_MENU_CLOSE));
 	};
-	document.registerElement('aria-menu', {
+	window.AriaMenuMenu = document.registerElement('aria-menu', {
 		prototype: AriaMenu
 	});
 }());

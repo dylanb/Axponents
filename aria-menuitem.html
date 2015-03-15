@@ -94,6 +94,70 @@
 		var template = importDoc.querySelector('#ariamenuitem');
 		var clone = document.importNode(template.content, true);
 		shadowRoot.appendChild(clone);
+	};
+	function handleClick(e) {
+		if (this.hasPopup) {
+			if (this.isOpen) {
+				this.close(true);
+			} else {
+				this.open()
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+		} else {
+			this.div.tabIndex = 0;
+			this.div.focus();
+			this.parentNode.dispatchEvent(new Event('click'));
+		}
+		this._closeOthers();
+	}
+	function handleMenuClose(e) {
+		// listen for the close of a child
+		this.close(true);
+		e.stopPropagation();
+	}
+	function handleKeydown(e) {
+		var which = e.which || e.keyCode;
+		var handled = false;
+		if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+			return;
+		}
+		switch(which) {
+			case 9: // tab
+				this.parentNode.dispatchEvent(new Event(this.ARIA_LOST_FOCUS));
+				return;
+			case 37: // left
+				if (this.horizontal) {
+					this._focusPrev();
+					handled = true;
+				}
+				break;
+			case 39: // right
+				if (this.horizontal) {
+					this._focusNext();
+					handled = true;
+				}
+				break;
+			case 40: // down
+			case 13: // ENTER
+				if (this.horizontal && this.hasPopup) {
+					this.dispatchEvent(new Event('click'));
+					handled = true;
+				} else if (which === 13) {
+					// emulate click
+					this.dispatchEvent(new Event('click'));
+					handled = true;
+				}
+				break;
+		}
+		if (handled) {
+			e.stopPropagation();
+			e.preventDefault();
+		}
+	}
+	AriaMenuitem.attachedCallback = function () {
+		var shadowRoot = this.shadowRoot;
 		this.div = shadowRoot.querySelector('div');
 		this.span = shadowRoot.querySelector('span');
 		this.div.style.width = this.getAttribute('width');
@@ -129,67 +193,14 @@
 		}
 		// handle click
 		this.isOpen = false;
-		this.addEventListener('click', function (e) {
-			if (this.hasPopup) {
-				if (this.isOpen) {
-					this.close(true);
-				} else {
-					this.open()
-				}
-				e.preventDefault();
-				e.stopPropagation();
-				e.stopImmediatePropagation();
-			} else {
-				this.div.tabIndex = 0;
-				this.div.focus();
-				this.parentNode.dispatchEvent(new Event('click'));
-			}
-			this._closeOthers();
-		}, false);
-		this.addEventListener('aria-menuclose', function (e) {
-			// listen for the close of a child
-			this.close(true);
-			e.stopPropagation();
-		});
-		this.addEventListener('keydown', function (e) {
-			var which = e.which || e.keyCode;
-			var handled = false;
-			if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
-				return;
-			}
-			switch(which) {
-				case 9: // tab
-					this.parentNode.dispatchEvent(new Event(this.ARIA_LOST_FOCUS));
-					return;
-				case 37: // left
-					if (this.horizontal) {
-						this._focusPrev();
-						handled = true;
-					}
-					break;
-				case 39: // right
-					if (this.horizontal) {
-						this._focusNext();
-						handled = true;
-					}
-					break;
-				case 40: // down
-				case 13: // ENTER
-					if (this.horizontal && this.hasPopup) {
-						this.dispatchEvent(new Event('click'));
-						handled = true;
-					} else if (which === 13) {
-						// emulate click
-						this.dispatchEvent(new Event('click'));
-						handled = true;
-					}
-					break;
-			}
-			if (handled) {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-		});
+		this.addEventListener('click', handleClick, false);
+		this.addEventListener('aria-menuclose', handleMenuClose, false);
+		this.addEventListener('keydown', handleKeydown, false);
+	};
+	AriaMenuitem.detachedCallback = function () {
+		this.removeEventListener('click', handleClick, false);
+		this.removeEventListener('aria-menuclose', handleMenuClose, false);
+		this.removeEventListener('keydown', handleKeydown, false);
 	};
 	/**
 	 * Fired when focus will be lost
@@ -297,11 +308,10 @@
 	/**
 	 * sets the tabindex to -1 so that the item is no longer naturally focusable
 	 *
-	 * @method _removeFocus
-	 * @private
+	 * @method removeFocus
 	 * @return undefined
 	 */
-	AriaMenuitem._removeFocus = function () {
+	AriaMenuitem.removeFocus = function () {
 		this.div.tabIndex = -1;
 	};
 
@@ -363,7 +373,7 @@
 		last._takeFocus();
 	};
 
-	document.registerElement('aria-menuitem', {
+	window.AriaMenuItem = document.registerElement('aria-menuitem', {
 		prototype: AriaMenuitem
 	});
 }());
