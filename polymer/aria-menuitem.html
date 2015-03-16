@@ -58,7 +58,7 @@
 		function handleKeydown(e) {
 			var which = e.which || e.keyCode;
 			var handled = false;
-			if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+			if (e.ctrlKey || e.altKey || e.metaKey) {
 				return;
 			}
 			switch(which) {
@@ -66,28 +66,30 @@
 					this.parentNode.dispatchEvent(new Event(this.ARIA_LOST_FOCUS));
 					return;
 				case 37: // left
-					if (this.horizontal) {
+					if (!e.shiftKey && this.horizontal) {
 						this._focusPrev();
 						handled = true;
 					}
 					break;
 				case 39: // right
-					if (this.horizontal) {
+					if (!e.shiftKey && this.horizontal) {
 						this._focusNext();
 						handled = true;
 					}
 					break;
 				case 40: // down
 				case 13: // ENTER
-					if (this.horizontal && this.hasPopup) {
-						this.dispatchEvent(new Event('click'));
-						handled = true;
-					} else if (which === 13) {
-						// emulate click
-						this.dispatchEvent(new Event('click'));
-						handled = true;
+					if (!e.shiftKey) {
+						if (this.horizontal && this.hasPopup) {
+							this.dispatchEvent(new Event('click'));
+							handled = true;
+						} else if (which === 13) {
+							// emulate click
+							this.dispatchEvent(new Event('click'));
+							handled = true;
+						}
+						break;
 					}
-					break;
 			}
 			if (handled) {
 				e.stopPropagation();
