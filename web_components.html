@@ -72,10 +72,8 @@
 		popup.addEventListener('click', function (e) {
 			popupMenu.style.display = "block";
 			popupMenu.querySelector('aria-menu').focus();
-			console.log('caught click');
 		}, false);
 		popupMenu.addEventListener('aria-menuclose', function (e) {
-			console.log('caught aria-menuclose');
 			popupMenu.style.display = 'none';
 			popup.focus();
 		}, false);
