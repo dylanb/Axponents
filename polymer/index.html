@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="bower_components/webcomponentsjs/webcomponents.min.js"></script>
+    <link rel="import" href="aria-menubar.html">
+    <link rel="import" href="aria-menuitem.html">
+    <link rel="import" href="aria-menu.html">
+  <head>
+    <style>
+    /*
+     * Show how to customize the look of the aria-* components
+     */
+
+    /*
+     * This is the 50% blue menu
+     */
+    .custom aria-menuitem::shadow div {
+      color:rgb(0, 0, 97);
+      background-color:rgb(207, 242, 253);
+    }
+    .custom aria-menu > aria-menuitem:last-of-type::shadow div {
+      border-bottom-right-radius: 1.5em;
+      border-bottom-left-radius: 1.5em;
+    }
+    .custom aria-menu::shadow div {
+      border-bottom-right-radius: 1.5em;
+      border-bottom-left-radius: 1.5em;
+      overflow:hidden;
+    }
+
+    /* Polyfilled */
+    .custom aria-menuitem div {
+      color:rgb(0, 0, 97);
+      background-color:rgb(207, 242, 253);
+    }
+    .custom aria-menu > div > aria-menuitem:last-of-type div {
+      border-bottom-right-radius: 1.5em;
+      border-bottom-left-radius: 1.5em;
+    }
+    .custom aria-menu > div {
+      border-bottom-right-radius: 1.5em;
+      border-bottom-left-radius: 1.5em;
+      overflow:hidden;
+    }
+
+    /*
+     * This is the popup menu
+     */
+    .popup aria-menuitem::shadow div {
+      color:rgb(97, 0, 0);
+      background-color:#fff;
+    }
+    .popup aria-menu::shadow div {
+      border-radius: 5px;
+      border-radius: 5px;
+      overflow:hidden;
+      border:2px rgb(97, 0, 0) solid;
+    }
+    .popup {
+      background-color:#e3e3e3;
+      padding:5px;
+      box-shadow: 3px 3px 5px 6px rgb(136, 88, 1);
+    }
+
+    /* Polyfilled */
+    .popup aria-menuitem > div {
+      color:rgb(97, 0, 0);
+      background-color:#fff;
+    }
+    .popup aria-menu > div {
+      border-radius: 5px;
+      border-radius: 5px;
+      overflow:hidden;
+      border:2px rgb(97, 0, 0) solid;
+    }
+    .popup {
+      background-color:#e3e3e3;
+      padding:5px;
+      box-shadow: 3px 3px 5px 6px rgb(136, 88, 1);
+    }
+
+    button:focus {
+      outline: 2px solid black;
+    }
+    </style>
+  </head>
+  <body>
+    <div><a href="#">before</a></div>
+    <div>
+      <button id="popup">popup</button>
+    </div>
+    <div class="popup" id="popupMenu" style="width:20%;display:none;position:absolute;">
+      <aria-menu class="aria-menu" popup>
+        <aria-menuitem class="aria-menuitem">
+          <label>Popup's Are Cool</label>
+        </aria-menuitem>
+        <aria-menuitem class="aria-menuitem">
+          <label>Popups are lame</label>
+        </aria-menuitem>
+        <aria-menuitem class="aria-menuitem">
+          <label>Meh</label>
+        </aria-menuitem>
+      </aria-menu>
+    </div>
+    <script>
+    popup.addEventListener('click', function (e) {
+      popupMenu.style.display = "block";
+      document.querySelector('#popupMenu>aria-menu').focus();
+    }, false);
+    popupMenu.addEventListener('aria-menuclose', function (e) {
+      popupMenu.style.display = 'none';
+      popup.focus();
+    }, false);
+    </script>
+    <div><a href="#">between</a></div>
+    <aria-menubar class="aria-menubar">
+      <aria-menuitem class="aria-menuitem" id="o">
+        <label>Cricket</label>
+        <aria-menu class="aria-menu">
+          <aria-menuitem class="aria-menuitem" id="oo">
+            <label>Googly</label>
+          </aria-menuitem>
+          <aria-menuitem class="aria-menuitem">
+            <label>Yorker</label>
+          </aria-menuitem>
+          <aria-menuitem class="aria-menuitem">
+            <label>Bouncer</label>
+          </aria-menuitem>
+        </aria-menu>
+      </aria-menuitem>
+      <aria-menuitem class="aria-menuitem">
+        <label>Rugby</label>
+        <aria-menu class="aria-menu">
+          <aria-menuitem class="aria-menuitem">
+            <label>Scrum</label>
+          </aria-menuitem>
+          <aria-menuitem class="aria-menuitem">
+            <label>Line out</label>
+          </aria-menuitem>
+        </aria-menu>
+      </aria-menuitem>
+      <aria-menuitem class="aria-menuitem">
+        <label>Soccer</label>
+        <aria-menu class="aria-menu">
+          <aria-menuitem class="aria-menuitem">
+            <label>Offside</label>
+          </aria-menuitem>
+          <aria-menuitem class="aria-menuitem">
+            <label>Penalty</label>
+          </aria-menuitem>
+        </aria-menu>
+      </aria-menuitem>
+    </aria-menubar>
+    <div><a href="#">between</a></div>
+    <div class="custom" style="width:50%;margin-left:25%">
+      <aria-menubar class="aria-menubar">
+        <aria-menuitem class="aria-menuitem">
+          <label>Cricket</label>
+          <aria-menu class="aria-menu">
+            <aria-menuitem class="aria-menuitem">
+              <label>Googly</label>
+            </aria-menuitem>
+            <aria-menuitem class="aria-menuitem">
+              <label>Yorker</label>
+            </aria-menuitem>
+            <aria-menuitem class="aria-menuitem">
+              <label>Bouncer</label>
+            </aria-menuitem>
+          </aria-menu>
+        </aria-menuitem>
+        <aria-menuitem class="aria-menuitem">
+          <label>Rugby</label>
+          <aria-menu class="aria-menu">
+            <aria-menuitem class="aria-menuitem">
+              <label>Scrum</label>
+            </aria-menuitem>
+            <aria-menuitem class="aria-menuitem">
+              <label>Line out</label>
+            </aria-menuitem>
+          </aria-menu>
+        </aria-menuitem>
+        <aria-menuitem class="aria-menuitem">
+          <label>Soccer</label>
+          <aria-menu class="aria-menu">
+            <aria-menuitem class="aria-menuitem">
+              <label>Offside</label>
+            </aria-menuitem>
+            <aria-menuitem class="aria-menuitem">
+              <label>Penalty</label>
+            </aria-menuitem>
+          </aria-menu>
+        </aria-menuitem>
+      </aria-menubar>
+    </div>
+    <div><a href="#">after</a></div>
+  </body>
+</html>

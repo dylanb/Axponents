@@ -1,0 +1,37 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<polymer-element name="aria-menubar">
+	<template>
+		<div role="menubar" aria-owns="menuitems">
+			<content></content>
+		</div>
+		<style>@import "aria-menubar.css";</style>
+	</template>
+	<script>
+	Polymer({
+		attached: function() {
+			// do stuff
+			this.setAttribute('role', 'presentation'); // hide the element in the emulated environments
+			var shadowRoot = this.shadowRoot;
+			console.log('ready aria-menubar: ', this);
+			var div = shadowRoot.querySelector('div');
+			var content = div.querySelector('content');
+			var nodes = content.getDistributedNodes();
+			// set the width of the children to responsively fill the
+			// whole menu bar
+			var children = 0;
+			for (var i = 0; i < nodes.length; i++) {
+				if (nodes[i].nodeType === 1) {
+					children++;
+				}
+			}
+			console.log('children: ', children);
+			for (i = 0; i < nodes.length; i++) {
+				if (nodes[i].nodeType === 1) {
+					nodes[i].setAttribute('width', 100/children + '%');
+				}
+			}
+		}
+	});
+	</script>
+</polymer-element>

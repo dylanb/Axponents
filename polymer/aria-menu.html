@@ -1,0 +1,193 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<polymer-element name="aria-menu">
+	<template id="ariamenu">
+		<div role="menu"><content></content></div>
+		<style>
+		* {
+			box-sizing: border-box;
+		}
+		*:before, *:after {
+			box-sizing: inherit;
+		}
+		div {
+			padding: 0;
+			margin: 0;
+			float:left;
+			width:100%;
+		}
+		</style>
+	</template>
+	<script>
+	(function () {
+		function handleClick(e) {
+			this.close();
+		};
+		function handleKeydown(e) {
+			var which = e.which || e.keyCode;
+			var handled = false;
+			if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+				return;
+			}
+			switch(which) {
+				case 37: // left
+				case 27: // ESC
+					// close self
+					this.close();
+					handled = true;
+					break;
+				case 38: // up
+					this._focusPrev();
+					handled = true;
+					break;
+				case 39: // right
+					handled = true;
+					break;
+				case 40: // down
+					this._focusNext();
+					handled = true;
+					break;
+			}
+			if (handled) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+		}
+		Polymer({
+			attached: function () {
+				this.setAttribute('role', 'presentation'); // hide the element in the emulated environments
+				this.div = this.shadowRoot.querySelector('div');
+				var content = this.shadowRoot.querySelector('content');
+				this.nodes = content.getDistributedNodes();
+				this.addEventListener('keydown', handleKeydown, false);
+				this.addEventListener('click', handleClick, false);
+				this.addEventListener('aria-lostfocus', handleClick, false);
+			},
+			detached: function () {
+				this.removeEventListener('keydown', handleKeydown, false);
+				this.removeEventListener('click', handleClick, false);
+				this.removeEventListener('aria-lostfocus', handleClick, false);
+			},
+			/**
+			 * Fired when the menu closes
+			 *
+			 * @event aria-menuclose
+			 */
+			ARIA_MENU_CLOSE: 'aria-menuclose',
+			/**
+			 * sets the focus to the menu
+			 *
+			 * @method focus
+			 * @return undefined
+			 */
+			focus: function () {
+				this._focusFirst();
+			},
+			/**
+			 * sets the focus to the first menu item in the menu
+			 *
+			 * @method _focusFirst
+			 * @private
+			 * @return undefined
+			 */
+			_focusFirst: function () {
+				for (var i = 0; i < this.nodes.length; i++) {
+					if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+						this.current = this.nodes[i];
+						this.nodes[i].focus();
+						break;
+					}
+				}
+			},
+			/**
+			 * sets the focus to the last menu item in the menu
+			 *
+			 * @method _focusLast
+			 * @private
+			 * @return undefined
+			 */
+			_focusLast: function () {
+				for (var i = this.nodes.length - 1; i >= 0; i--) {
+					if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+						this.current = this.nodes[i];
+						this.nodes[i].focus();
+						break;
+					}
+				}
+			},
+			/**
+			 * advances the focus to the next menu item in the menu and wraps around at the end
+			 *
+			 * @method _focusNext
+			 * @private
+			 * @return undefined
+			 */
+			_focusNext: function () {
+				for (var i = 0; i < this.nodes.length; i++) {
+					if (this.nodes[i] === this.current) {
+						i++;
+						break;
+					}
+				}
+				this.current && this.current.removeFocus();
+				for (; i < this.nodes.length; i++) {
+					if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+						this.current = this.nodes[i];
+						this.nodes[i].focus();
+						break;
+					}
+				}
+				if (i === this.nodes.length) {
+					this._focusFirst();
+				}
+			},
+			/**
+			 * sets the focus to the previous menu item in the menu and wraps around at the end
+			 *
+			 * @method _focusPrev
+			 * @private
+			 * @return undefined
+			 */
+			_focusPrev: function () {
+				for (var i = this.nodes.length - 1; i >= 0; i--) {
+					if (this.nodes[i] === this.current) {
+						i--;
+						break;
+					}
+				}
+				this.current && this.current.removeFocus();
+				for (; i >= 0; i--) {
+					if (this.nodes[i].nodeName === 'ARIA-MENUITEM') {
+						this.current = this.nodes[i];
+						this.nodes[i].focus();
+						break;
+					}
+				}
+				if (i === -1) {
+					this._focusLast();
+				}
+			},
+			/**
+			 * Opens the menu and places the focus on the first item in the menu
+			 *
+			 * @method open
+			 * @return undefined
+			 */
+			open: function () {
+				this.setAttribute('aria-expanded', 'true');
+				this._focusFirst();
+			},
+			/**
+			 * Closes the menu and fires the 'aria-menuclose' event on the parent node
+			 *
+			 * @method close
+			 * @return undefined
+			 */
+			close: function () {
+				// tell parent we closed
+				this.setAttribute('aria-expanded', 'false');
+				this.parentNode.dispatchEvent(new Event(this.ARIA_MENU_CLOSE));
+			}
+		});
+	}());
+	</script>
+</polymer-element>

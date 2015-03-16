@@ -1,0 +1,28 @@
+{
+  "name": "Axponents-polymer",
+  "version": "1.0.0",
+  "homepage": "https://github.com/dylanb/Axponents",
+  "description": "Accessible Polymer Components",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "Accessibility",
+    "Polymer",
+    "a11y"
+  ],
+  "authors": [
+    "Dylan Barrell"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#~0.5.5"
+  }
+}

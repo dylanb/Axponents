@@ -1,0 +1,36 @@
+* {
+	box-sizing: border-box;
+}
+*:before, *:after {
+	box-sizing: inherit;
+}
+div {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height:3.236em;
+	float: left;
+	width:100%;
+	background: #999999;
+	text-align: center;
+	color:#fff;
+	display:inline-block;
+}
+span {
+	display: none;
+	width: 100%;
+}
+div.open {
+	padding-bottom:0;
+}
+div:focus {
+	outline: none;
+	border: 2px dotted black;
+}
+div:hover,
+div:focus  {
+	background: #CCCCCC;
+	color: #000000;
+}
+div.open + span {
+	display:block;
+	position:absolute;
+}

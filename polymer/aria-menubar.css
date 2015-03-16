@@ -1,0 +1,16 @@
+* {
+	box-sizing: border-box;
+}
+*:before, *:after {
+	box-sizing: inherit;
+}
+div {
+	padding: 0;
+	margin: 0;
+	width:100%;
+}
+div:after {
+	content: "";
+	display:table;
+	clear:both;
+}

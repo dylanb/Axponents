@@ -1,0 +1,314 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<polymer-element name="aria-menuitem">
+	<template>
+		<div role="menuitem" tabindex="0" aria-owns="nextmenu">
+			<content select="label"></content>
+		</div>
+		<span id="nextmenu">
+			<content select="aria-menu,aria-menuitem"></content>
+		</span>
+		<style>@import "aria-menuitem.css";</style>
+	</template>
+	<script>
+	(function () {
+		function getElementCoordinates(node) {
+			var coords = {
+				"top": 0, "right": 0, "bottom": 0, "left": 0, "width": 0, "height": 0
+			},
+			xOffset, yOffset, rect;
+	
+			if (node) {
+				xOffset = window.scrollX;
+				yOffset = window.scrollY;
+				rect = node.getBoundingClientRect();
+	
+				coords = {
+					"top": rect.top + yOffset,
+					"right": rect.right + xOffset,
+					"bottom": rect.bottom + yOffset,
+					"left": rect.left + xOffset,
+					"width": rect.right - rect.left,
+					"height": rect.bottom - rect.top
+				};
+			}
+			return coords;
+		}
+		function handleClick(e) {
+			if (this.hasPopup) {
+				if (this.isOpen) {
+					this.close(true);
+				} else {
+					this.open()
+				}
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+			} else {
+				this.div.tabIndex = 0;
+				this.div.focus();
+				this.parentNode.dispatchEvent(new Event('click'));
+			}
+			this._closeOthers();
+		}
+		function handleMenuClose(e) {
+			// listen for the close of a child
+			this.close(true);
+			e.stopPropagation();
+		}
+		function handleKeydown(e) {
+			var which = e.which || e.keyCode;
+			var handled = false;
+			if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+				return;
+			}
+			switch(which) {
+				case 9: // tab
+					this.parentNode.dispatchEvent(new Event(this.ARIA_LOST_FOCUS));
+					return;
+				case 37: // left
+					if (this.horizontal) {
+						this._focusPrev();
+						handled = true;
+					}
+					break;
+				case 39: // right
+					if (this.horizontal) {
+						this._focusNext();
+						handled = true;
+					}
+					break;
+				case 40: // down
+				case 13: // ENTER
+					if (this.horizontal && this.hasPopup) {
+						this.dispatchEvent(new Event('click'));
+						handled = true;
+					} else if (which === 13) {
+						// emulate click
+						this.dispatchEvent(new Event('click'));
+						handled = true;
+					}
+					break;
+			}
+			if (handled) {
+				e.stopPropagation();
+				e.preventDefault();
+			}
+		}
+		Polymer({
+			attached: function () {
+				this.setAttribute('role', 'presentation'); // hide the element in the emulated environments
+				var shadowRoot = this.shadowRoot;
+				this.div = shadowRoot.querySelector('div');
+				this.span = shadowRoot.querySelector('span');
+				this.div.style.width = this.getAttribute('width');
+	
+				// Set the span to the same width as ourselves
+				// because the absolute positioning picks
+				// up on the width of the whole document and we want to be
+				// responsive
+				var coords = getElementCoordinates(this.div);
+				this.span.style.width = coords.width + 'px';
+				if (!this.previousElementSibling &&
+					(this.parentNode.nodeName !== 'ARIA-MENU' || this.parentNode.hasAttribute('popup'))) {
+					// only make this element focusable if it is the topmost first element in the tree
+					this.div.tabIndex = 0;
+				} else {
+					this.div.tabIndex = -1;
+				}
+				if (this.parentNode.nodeName !== 'ARIA-MENU') {
+					this.horizontal = true;
+				}
+				// look for sub-menus
+				var content = shadowRoot.querySelector('#nextmenu').querySelector('content');
+				this.nodes = content.getDistributedNodes();
+				for (var i = 0; i < this.nodes.length; i++) {
+					if (this.nodes[i].nodeName === 'ARIA-MENU') {
+						this.hasPopup = true;
+						break;
+					}
+				}
+				if (this.hasPopup) {
+					this.div.setAttribute('aria-haspopup', true);
+					this.div.setAttribute('aria-expanded', false);
+				}
+				// handle click
+				this.isOpen = false;
+				this.addEventListener('click', handleClick, false);
+				this.addEventListener('aria-menuclose', handleMenuClose, false);
+				this.addEventListener('keydown', handleKeydown, false);
+			},
+			detached: function () {
+				this.removeEventListener('click', handleClick, false);
+				this.removeEventListener('aria-menuclose', handleMenuClose, false);
+				this.removeEventListener('keydown', handleKeydown, false);
+			},
+			/**
+			 * Fired when focus will be lost
+			 *
+			 * @event aria-lostfocus
+			 */
+			ARIA_LOST_FOCUS: 'aria-lostfocus',
+			/**
+			 * Closes peer menuitems
+			 *
+			 * @method _closeOthers
+			 * @private
+			 * @return undefined
+			 */
+			_closeOthers: function () {
+				var prev = this.previousElementSibling;
+				while (prev) {
+					prev.close && prev.close();
+					prev = prev.previousElementSibling;
+				}
+				var next = this.nextElementSibling;
+				while (next) {
+					next.close && next.close();
+					next = next.nextElementSibling;
+				}
+			},
+			/**
+			 * Opens the menuitem if it has a sub-menu, otherwise does nothing
+			 *
+			 * @method open
+			 * @return undefined
+			 */
+			open: function () {
+				var coords;
+				if (this.hasPopup) {
+					this.isOpen = true;
+					this.div.classList.add('open');
+					this.div.tabIndex = -1;
+					this.nodes[0].open();
+					coords = getElementCoordinates(this.div);
+					this.span.style.left = coords.left + 'px';
+					this.span.style.top = coords.top + coords.height + 'px';
+				}
+			},
+			/**
+			 * focuses the menu item and closes peer items
+			 *
+			 * @method _takeFocus
+			 * @private
+			 * @return undefined
+			 */
+			_takeFocus: function () {
+				this.div.tabIndex = 0;
+				this.div.focus();
+				this._closeOthers();
+			},
+			/**
+			 * focuses the menu item
+			 *
+			 * @method focus
+			 * @return undefined
+			 */
+			focus: function () {
+				this._takeFocus();
+			},
+	
+			/**
+			 * closes the menu item
+			 *
+			 * @method close
+			 * @return undefined
+			 */
+			close: function (focus) {
+				if (this.hasPopup) {
+					this.isOpen = false;
+					this.div.classList.remove('open');
+					if (focus) {
+						this.div.tabIndex = 0;
+						this.div.focus();
+					} else {
+						this.div.tabIndex = -1;
+					}
+				}
+			},
+			/**
+			 * focuses the next menu item and wraps around at the limit
+			 *
+			 * @method _focusNext
+			 * @private
+			 * @return undefined
+			 */
+			_focusNext: function () {
+				var next = this.nextElementSibling;
+				while (next) {
+					if (next._takeFocus) {
+						next._takeFocus();
+						this.div.tabIndex = -1;
+						return;
+					}
+					next = next.nextElementSibling;
+				}
+				this._focusFirst();
+			},
+			/**
+			 * sets the tabindex to -1 so that the item is no longer naturally focusable
+			 *
+			 * @method removeFocus
+			 * @return undefined
+			 */
+			removeFocus: function () {
+				this.div.tabIndex = -1;
+			},
+			/**
+			 * focuses the first menu item
+			 *
+			 * @method _focusFirst
+			 * @private
+			 * @return undefined
+			 */
+			_focusFirst: function () {
+				var prev = this;
+				var first;
+				while (prev) {
+					if (prev._takeFocus) {
+						first = prev;
+					}
+					prev = prev.previousElementSibling;
+				}
+				first._takeFocus();
+			},
+			/**
+			 * focuses the previous menu item and wraps around at the limit
+			 *
+			 * @method _focusPrev
+			 * @private
+			 * @return undefined
+			 */
+			_focusPrev: function () {
+				var prev = this.previousElementSibling;
+				while (prev) {
+					if (prev._takeFocus) {
+						prev._takeFocus();
+						this.div.tabIndex = -1;
+						return;
+					}
+					prev = prev.previousElementSibling;
+				}
+				this._focusLast();
+			},
+			/**
+			 * focuses the last menu item
+			 *
+			 * @method _focusLast
+			 * @private
+			 * @return undefined
+			 */
+			_focusLast: function () {
+				var next = this;
+				var last;
+				while (next) {
+					if (next._takeFocus) {
+						last = next;
+					}
+					next = next.nextElementSibling;
+				}
+				last._takeFocus();
+			}
+		});
+	}());
+	</script>
+</polymer-element>
