@@ -183,6 +183,7 @@
 					coords = getElementCoordinates(this.div);
 					this.span.style.left = coords.left + 'px';
 					this.span.style.top = coords.top + coords.height + 'px';
+					this.div.setAttribute('aria-expanded', true);
 				}
 			},
 			/**
@@ -223,6 +224,7 @@
 					} else {
 						this.div.tabIndex = -1;
 					}
+					this.div.setAttribute('aria-expanded', false);
 				}
 			},
 			/**

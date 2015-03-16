@@ -5,6 +5,7 @@
     <link rel="import" href="aria-menubar.html">
     <link rel="import" href="aria-menuitem.html">
     <link rel="import" href="aria-menu.html">
+    <title>Examples of Accessible Polymer ARIA Menus</title>
   <head>
     <style>
     /*
@@ -85,6 +86,10 @@
     </style>
   </head>
   <body>
+    <h1>Examples of Accessible Polymer ARIA Menus</h1>
+    <p>
+      This page contains examples of an accessible Polymer ARIA menu component. The first one is a popup menu activated by the "popup" button. The popup example also shows how to custom-style a web component within an emulated and native web components environment. The links between the examples allow for easy testing of focus management.
+    </p>
     <div><a href="#">before</a></div>
     <div>
       <button id="popup">popup</button>
@@ -113,6 +118,9 @@
     }, false);
     </script>
     <div><a href="#">between</a></div>
+    <p>
+      This next example shows a two-level menu with a menu bar. It is using the default styling of the component and is using the full screen width.
+    </p>
     <aria-menubar class="aria-menubar">
       <aria-menuitem class="aria-menuitem" id="o">
         <label>Cricket</label>
@@ -152,6 +160,9 @@
       </aria-menuitem>
     </aria-menubar>
     <div><a href="#">between</a></div>
+    <p>
+      This final example shows the same two-level menu. It is using custom styling of and is showing responsive sizing of the component (note the sub-menu does not respond to screen size changes dynamically, but only on page load).
+    </p>
     <div class="custom" style="width:50%;margin-left:25%">
       <aria-menubar class="aria-menubar">
         <aria-menuitem class="aria-menuitem">
