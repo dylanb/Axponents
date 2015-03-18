@@ -1,10 +1,8 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <polymer-element name="aria-menuitem">
 	<template>
-		<div role="menuitem" tabindex="0" aria-owns="nextmenu">
-			<content select="label"></content>
-		</div>
-		<span id="nextmenu">
+		<content select="label"></content>
+		<span role="presentation">
 			<content select="aria-menu,aria-menuitem"></content>
 		</span>
 		<style>@import "aria-menuitem.css";</style>
@@ -44,8 +42,8 @@
 				e.stopPropagation();
 				e.stopImmediatePropagation();
 			} else {
-				this.div.tabIndex = 0;
-				this.div.focus();
+				this.tabIndex = 0;
+				this.focus();
 				this.parentNode.dispatchEvent(new Event('click'));
 			}
 			this._closeOthers();
@@ -98,30 +96,29 @@
 		}
 		Polymer({
 			attached: function () {
-				this.setAttribute('role', 'presentation'); // hide the element in the emulated environments
+				this.setAttribute('role', 'menuitem');
 				var shadowRoot = this.shadowRoot;
-				this.div = shadowRoot.querySelector('div');
 				this.span = shadowRoot.querySelector('span');
-				this.div.style.width = this.getAttribute('width');
+				this.style.width = this.getAttribute('width');
 	
 				// Set the span to the same width as ourselves
 				// because the absolute positioning picks
 				// up on the width of the whole document and we want to be
 				// responsive
-				var coords = getElementCoordinates(this.div);
+				var coords = getElementCoordinates(this);
 				this.span.style.width = coords.width + 'px';
 				if (!this.previousElementSibling &&
 					(this.parentNode.nodeName !== 'ARIA-MENU' || this.parentNode.hasAttribute('popup'))) {
 					// only make this element focusable if it is the topmost first element in the tree
-					this.div.tabIndex = 0;
+					this.tabIndex = 0;
 				} else {
-					this.div.tabIndex = -1;
+					this.tabIndex = -1;
 				}
 				if (this.parentNode.nodeName !== 'ARIA-MENU') {
 					this.horizontal = true;
 				}
 				// look for sub-menus
-				var content = shadowRoot.querySelector('#nextmenu').querySelector('content');
+				var content = shadowRoot.querySelector('span').querySelector('content');
 				this.nodes = content.getDistributedNodes();
 				for (var i = 0; i < this.nodes.length; i++) {
 					if (this.nodes[i].nodeName === 'ARIA-MENU') {
@@ -130,8 +127,8 @@
 					}
 				}
 				if (this.hasPopup) {
-					this.div.setAttribute('aria-haspopup', true);
-					this.div.setAttribute('aria-expanded', false);
+					this.setAttribute('aria-haspopup', true);
+					this.setAttribute('aria-expanded', false);
 				}
 				// handle click
 				this.isOpen = false;
@@ -179,13 +176,14 @@
 				var coords;
 				if (this.hasPopup) {
 					this.isOpen = true;
-					this.div.classList.add('open');
-					this.div.tabIndex = -1;
+					this.classList.add('open');
+					this.span.classList.add('open');
+					this.tabIndex = -1;
 					this.nodes[0].open();
-					coords = getElementCoordinates(this.div);
+					coords = getElementCoordinates(this);
 					this.span.style.left = coords.left + 'px';
 					this.span.style.top = coords.top + coords.height + 'px';
-					this.div.setAttribute('aria-expanded', true);
+					this.setAttribute('aria-expanded', true);
 				}
 			},
 			/**
@@ -196,20 +194,10 @@
 			 * @return undefined
 			 */
 			_takeFocus: function () {
-				this.div.tabIndex = 0;
-				this.div.focus();
+				this.tabIndex = 0;
+				this.focus();
 				this._closeOthers();
 			},
-			/**
-			 * focuses the menu item
-			 *
-			 * @method focus
-			 * @return undefined
-			 */
-			focus: function () {
-				this._takeFocus();
-			},
-	
 			/**
 			 * closes the menu item
 			 *
@@ -219,14 +207,15 @@
 			close: function (focus) {
 				if (this.hasPopup) {
 					this.isOpen = false;
-					this.div.classList.remove('open');
+					this.classList.remove('open');
+					this.span.classList.remove('open');
 					if (focus) {
-						this.div.tabIndex = 0;
-						this.div.focus();
+						this.tabIndex = 0;
+						this.focus();
 					} else {
-						this.div.tabIndex = -1;
+						this.tabIndex = -1;
 					}
-					this.div.setAttribute('aria-expanded', false);
+					this.setAttribute('aria-expanded', false);
 				}
 			},
 			/**
@@ -241,7 +230,7 @@
 				while (next) {
 					if (next._takeFocus) {
 						next._takeFocus();
-						this.div.tabIndex = -1;
+						this.tabIndex = -1;
 						return;
 					}
 					next = next.nextElementSibling;
@@ -255,7 +244,7 @@
 			 * @return undefined
 			 */
 			removeFocus: function () {
-				this.div.tabIndex = -1;
+				this.tabIndex = -1;
 			},
 			/**
 			 * focuses the first menu item
@@ -287,7 +276,7 @@
 				while (prev) {
 					if (prev._takeFocus) {
 						prev._takeFocus();
-						this.div.tabIndex = -1;
+						this.tabIndex = -1;
 						return;
 					}
 					prev = prev.previousElementSibling;

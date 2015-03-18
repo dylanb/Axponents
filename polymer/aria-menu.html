@@ -1,15 +1,15 @@
 <link rel="import" href="bower_components/polymer/polymer.html">
 <polymer-element name="aria-menu">
 	<template id="ariamenu">
-		<div role="menu"><content></content></div>
+		<content></content>
 		<style>
-		* {
+		:host {
 			box-sizing: border-box;
 		}
-		*:before, *:after {
+		:host(:before), :host(:after) {
 			box-sizing: inherit;
 		}
-		div {
+		:host {
 			padding: 0;
 			margin: 0;
 			float:left;
@@ -54,8 +54,7 @@
 		}
 		Polymer({
 			attached: function () {
-				this.setAttribute('role', 'presentation'); // hide the element in the emulated environments
-				this.div = this.shadowRoot.querySelector('div');
+				this.setAttribute('role', 'menu');
 				var content = this.shadowRoot.querySelector('content');
 				this.nodes = content.getDistributedNodes();
 				this.addEventListener('keydown', handleKeydown, false);

@@ -2,20 +2,16 @@
 
 <polymer-element name="aria-menubar">
 	<template>
-		<div role="menubar" aria-owns="menuitems">
-			<content></content>
-		</div>
+		<content></content>
 		<style>@import "aria-menubar.css";</style>
 	</template>
 	<script>
 	Polymer({
 		attached: function() {
 			// do stuff
-			this.setAttribute('role', 'presentation'); // hide the element in the emulated environments
+			this.setAttribute('role', 'menubar'); // hide the element in the emulated environments
 			var shadowRoot = this.shadowRoot;
-			console.log('ready aria-menubar: ', this);
-			var div = shadowRoot.querySelector('div');
-			var content = div.querySelector('content');
+			var content = shadowRoot.querySelector('content');
 			var nodes = content.getDistributedNodes();
 			// set the width of the children to responsively fill the
 			// whole menu bar
@@ -28,7 +24,7 @@
 			console.log('children: ', children);
 			for (i = 0; i < nodes.length; i++) {
 				if (nodes[i].nodeType === 1) {
-					nodes[i].setAttribute('width', 100/children + '%');
+					nodes[i].setAttribute('width', 99/children + '%');
 				}
 			}
 		}

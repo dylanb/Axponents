@@ -1,15 +1,15 @@
-* {
+:host {
 	box-sizing: border-box;
 }
-*:before, *:after {
+:host(:before), :host(:after) {
 	box-sizing: inherit;
 }
-div {
+:host {
 	padding: 0;
 	margin: 0;
 	width:100%;
 }
-div:after {
+:host(:after) {
 	content: "";
 	display:table;
 	clear:both;
