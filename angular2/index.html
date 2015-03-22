@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>ARIA Menu</title>
+    <script src="/quickstart/dist/es6-shim.js"></script>
+  </head>
+  <body>
+  	<a href="#">before</a>
+  	<my-app></my-app>
+  	<a href="#">after</a>
+	<script>
+	// Rewrite the paths to load the files
+	System.paths = {
+		'angular2/*':'/quickstart/angular2/*.js', // Angular
+		'rtts_assert/*': '/quickstart/rtts_assert/*.js', //Runtime assertions
+		'myapp/*': '/*.es6',
+		'my-app': 'myapp.es6'
+	};
+
+	// Kick off the application
+	System.import('my-app');
+	</script>
+  </body>
+</html>

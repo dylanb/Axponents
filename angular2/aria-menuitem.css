@@ -1,0 +1,44 @@
+:host; {
+	box-sizing: border-box;
+}
+:host(:before), :host(:after) {
+	box-sizing: inherit;
+}
+:host {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height:3.236em;
+	float: left;
+	width:100%;
+	background: #999999;
+	text-align: center;
+	color:#fff;
+	display:inline-block;
+}
+span {
+	display: none;
+	width: 100%;
+}
+/*
+ * The code associated with this not ready yet
+ *
+:host([selected="true"]) {
+	background: #ffffe0;
+	color: #000000;
+}
+*/
+:host.open {
+	padding-bottom:0;
+}
+:host(:focus) {
+	outline: none;
+	border: 2px dotted black;
+}
+:host(:hover),
+:host(:focus)  {
+	background: #CCCCCC;
+	color: #000000;
+}
+span.open {
+	display:block;
+	position:absolute;
+}
