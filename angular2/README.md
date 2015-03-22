@@ -1,5 +1,5 @@
 ## Getting Started
-Clone the Angular2 quickstart repository
+Clone the Angular2 quickstart repository into this directory
 
 ```
 git clone https://github.com/angular/quickstart.git
@@ -11,7 +11,7 @@ Make sure you have a web server
 npm install -g serve
 ```
 
-Start a web server in the angular2 directory
+Start a web server in this directory
 
 ```
 serve -p 8000
