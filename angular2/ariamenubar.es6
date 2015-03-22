@@ -26,7 +26,6 @@ function getChildElements (us) {
 function openOrSelect (e) {
 	var children = getChildElements(this);
 	var that = this;
-	console.log('openOrSelect: ', e.target);
 	children.forEach(function (child) {
 		if (child === e.target && !child.getAttribute('selected')) {
 			// select (open if sub-menu otherwise click)
@@ -35,7 +34,6 @@ function openOrSelect (e) {
 			child.dispatchEvent(new CustomEvent('selectmenu'));
 		} else if (child !== e.target) {
 			// unselect (close if open)
-			console.log('dispatching unselectmenu');
 			child.dispatchEvent(new CustomEvent('unselectmenu'));
 			child.setAttribute('selected', false);
 		} else {
@@ -50,7 +48,6 @@ function openOrSelect (e) {
 function focusNext(e) {
 	var children = getChildElements(this);
 	var index;
-	console.log('focusNext: ', e.target);
 	children = children.filter(function(child) {
 		return isVisible(child);
 	});
@@ -72,7 +69,6 @@ function focusNext(e) {
 function focusPrev(e) {
 	var children = getChildElements(this);
 	var index;
-	console.log('focusNext: ', e.target);
 	children = children.filter(function(child) {
 		return isVisible(child);
 	});
@@ -103,12 +99,10 @@ function handleKeyDown (e) {
 		switch(which) {
 			case KEY_LEFT:
 				focusPrev.call(this, e);
-				console.log('KEY_LEFT');
 				handled = true;
 				break;
 			case KEY_RIGHT:
 				focusNext.call(this, e);
-				console.log('KEY_RIGHT');
 				handled = true;
 				break;
 			case KEY_DOWN:
@@ -132,7 +126,6 @@ function handleChange(e) {
 		if (currentValue !== newValue) {
 			this.setAttribute('value', newValue);
 			this.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
-			console.log('menubar change');
 		}
 		e.stopPropagation();
 		e.preventDefault();
@@ -177,6 +170,7 @@ export class AriaMenubar {
 		us.addEventListener('change', handleChange, false);
 	}
 	onDestroy(el: NgElement) {
+		var us = el.domElement;
 		us.removeEventListener('keydown', handleKeyDown, false);
 		us.removeEventListener('click', openOrSelect, false);
 		us.removeEventListener('change', handleChange, false);

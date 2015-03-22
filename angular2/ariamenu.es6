@@ -86,7 +86,6 @@ function handleKeyDown (e) {
 		switch(which) {
 			case KEY_UP:
 				focusPrev.call(this, e);
-				console.log('KEY_UP');
 				handled = true;
 				break;
 			case KEY_RIGHT:
@@ -95,18 +94,15 @@ function handleKeyDown (e) {
 				break;
 			case KEY_LEFT:
 			case KEY_ESC:
-				console.log('KEY_LEFT');
 				close.call(this, e);
 				handled = true;
 				break;
 			case KEY_DOWN:
 				focusNext.call(this, e);
-				console.log('KEY_DOWN');
 				handled = true;
 				break;
 			case KEY_ENTER:
 				handleClick.call(this, e);
-				console.log('KEY_ENTER');
 				handled = true;
 				break;
 		}
@@ -118,7 +114,6 @@ function handleKeyDown (e) {
 }
 
 function handleClick(e) {
-	console.log('menu click');
 	var children = getChildElements(this);
 	children.forEach(function (child) {
 		if (child === e.target) {
@@ -136,7 +131,6 @@ function handleClick(e) {
 }
 
 function takeFocus(e) {
-	console.log('takefocus');
 	this.setAttribute('value', ''); // clear the value
 	var children = getChildElements(this);
 	children.forEach(function (child) {
@@ -151,11 +145,9 @@ function handleChange(e) {
 	if (e.target !== this) {
 		currentValue = this.getAttribute('value');
 		newValue = e.target.getAttribute('value');
-		console.log('menu change: ', currentValue, ', ', newValue);
 		if (currentValue !== newValue) {
 			this.setAttribute('value', newValue);
 			this.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
-			console.log('menu change');
 		}
 		e.stopPropagation();
 		e.preventDefault();
@@ -175,7 +167,6 @@ function handleChange(e) {
 // Component controller
 export class AriaMenu {
 	constructor(el: NgElement) {
-		console.log('menu constructor');
 		var us = el.domElement;
 		us.setAttribute('role', 'menu'); // hide the element in the emulated environments
 		var shadowRoot = us.shadowRoot;
@@ -188,10 +179,11 @@ export class AriaMenu {
 		us.addEventListener('change', handleChange, false);
 	}
 	onDestroy(el: NgElement) {
-		console.log('menu onDestroy');
+		var us = el.domElement;
 		us.removeEventListener('keydown', handleKeyDown, false);
 		us.removeEventListener('takefocus', takeFocus, false);
 		us.removeEventListener('click', handleClick, false);
+		us.removeEventListener('change', handleChange, false);
 	}
 }
 

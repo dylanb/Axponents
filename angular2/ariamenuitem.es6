@@ -114,7 +114,8 @@ function handleUnSelect() {
 
 // Annotation section
 @Component({
-	selector: 'aria-menuitem'
+	selector: 'aria-menuitem',
+	lifecycle: [ 'onDestroy' ]
 })
 @Template({
 	inline: `
@@ -157,5 +158,11 @@ export class AriaMenuitem {
 		us.addEventListener('aria-menuclose', handleMenuClose, false);
 		us.addEventListener('selectmenu', handleSelect, false);
 		us.addEventListener('unselectmenu', handleUnSelect, false);
+	}
+	onDestroy(el: NgElement) {
+		var us = el.domElement;
+		us.removeEventListener('aria-menuclose', handleMenuClose, false);
+		us.removeEventListener('selectmenu', handleSelect, false);
+		us.removeEventListener('unselectmenu', handleUnSelect, false);		
 	}
 }

@@ -7,7 +7,8 @@ import {AriaMenu} from 'myapp/ariamenu';
     selector:'my-app'
 })
 @Template({
-  inline: `<aria-menubar (change)="handleMenuChange()">
+  inline: `
+    <aria-menubar (change)="handleMenuChange()">
         <aria-menuitem>
             <label>One</label>
             <aria-menu>
