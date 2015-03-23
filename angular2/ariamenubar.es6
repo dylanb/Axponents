@@ -147,7 +147,7 @@ function handleChange(e) {
 export class AriaMenubar {
 	constructor(el: NgElement) {
 		var us = el.domElement;
-		us.setAttribute('role', 'menubar'); // hide the element in the emulated environments
+		us.setAttribute('role', 'menubar');
 		var shadowRoot = us.shadowRoot;
 		var content = shadowRoot.querySelector('content');
 		var nodes = content.getDistributedNodes();

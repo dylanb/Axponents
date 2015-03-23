@@ -31,7 +31,6 @@ span {
 }
 :host(:focus) {
 	outline: none;
-	border: 2px dotted black;
 }
 :host(:hover),
 :host(:focus)  {
