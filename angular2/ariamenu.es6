@@ -27,7 +27,6 @@ function getChildElements (us) {
 function focusNext(e) {
 	var children = getChildElements(this);
 	var index;
-	console.log('focusNext: ', e.target);
 	children = children.filter(function(child) {
 		return isVisible(child);
 	});
@@ -49,7 +48,6 @@ function focusNext(e) {
 function focusPrev(e) {
 	var children = getChildElements(this);
 	var index;
-	console.log('focusNext: ', e.target);
 	children = children.filter(function(child) {
 		return isVisible(child);
 	});
@@ -89,7 +87,7 @@ function handleKeyDown (e) {
 				handled = true;
 				break;
 			case KEY_RIGHT:
-				console.log('KEY_RIGHT');
+				// TODO: handle sub-sub-menu
 				handled = true;
 				break;
 			case KEY_LEFT:
