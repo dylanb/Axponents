@@ -3,7 +3,7 @@ This repository consosts of examples of Accessible Web Components implemented on
 
 The [native](native) directory contains native web components
 
-The [polymer](polyner) directory contains portable web components using the Polymer framework
+The [polymer](polymer) directory contains portable web components using the Polymer framework
 
 The [angular2](angular2) directory contains Angular 2 examples
 
