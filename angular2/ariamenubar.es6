@@ -1,4 +1,4 @@
-import {Component, Template, bootstrap, NgElement} from 'angular2/angular2';
+import {Component, Template, bootstrap, NgElement, PropertySetter} from 'angular2/angular2';
 
 var KEY_LEFT = 37;
 var KEY_UP = 38;
@@ -145,12 +145,11 @@ function handleChange(e) {
 })
 // Component controller
 export class AriaMenubar {
-	constructor(el: NgElement) {
+	constructor(el: NgElement, @PropertySetter('title') propSetter: Function) {
 		var us = el.domElement;
+		var nodes = getChildElements(us);
+
 		us.setAttribute('role', 'menubar');
-		var shadowRoot = us.shadowRoot;
-		var content = shadowRoot.querySelector('content');
-		var nodes = content.getDistributedNodes();
 		// set the width of the children to responsively fill the
 		// whole menu bar
 		var children = 0;

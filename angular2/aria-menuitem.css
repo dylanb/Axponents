@@ -14,10 +14,6 @@
 	color:#fff;
 	display:inline-block;
 }
-span {
-	display: none;
-	width: 100%;
-}
 /*
  * The code associated with this not ready yet
  *
@@ -36,8 +32,4 @@ span {
 :host(:focus)  {
 	background: #CCCCCC;
 	color: #000000;
-}
-span.open {
-	display:block;
-	position:absolute;
 }

@@ -168,10 +168,8 @@ function handleChange(e) {
 export class AriaMenu {
 	constructor(el: NgElement) {
 		var us = el.domElement;
+
 		us.setAttribute('role', 'menu');
-		var shadowRoot = us.shadowRoot;
-		var content = shadowRoot.querySelector('content');
-		var nodes = content.getDistributedNodes();
 		// TODO: figure out how to unbind this when needed
 		us.addEventListener('keydown', handleKeyDown, false);
 		us.addEventListener('takefocus', takeFocus, false);

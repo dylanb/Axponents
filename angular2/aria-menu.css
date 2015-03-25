@@ -9,4 +9,11 @@
 	margin: 0;
 	float:left;
 	width:100%;
+	display: none;
+	width: 100%;
+}
+
+:host(.open) {
+	display:block;
+	position:absolute;
 }

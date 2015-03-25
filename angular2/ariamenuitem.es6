@@ -24,8 +24,8 @@ function getElementCoordinates(node) {
 	return coords;
 }
 
-function close(span, nextFocus, doFocus) {
-	span.classList.remove('open');
+function close(menu, nextFocus, doFocus) {
+	menu.classList.remove('open');
 	nextFocus.classList.remove('open');
 	nextFocus.tabIndex = 0;
 	nextFocus.setAttribute('aria-expanded', false);
@@ -34,23 +34,23 @@ function close(span, nextFocus, doFocus) {
 	}
 }
 
-function open(span, nextFocus, currentFocus) {
+function open(nextFocus, currentFocus) {
 	var coords;
 
-	span.classList.add('open');
+	nextFocus.classList.add('open');
 	currentFocus.classList.add('open');
 	currentFocus.tabIndex = -1;
 	coords = getElementCoordinates(currentFocus);
-	span.style.width = coords.width + 'px';
-	span.style.left = coords.left + 'px';
-	span.style.top = coords.top + coords.height + 'px';
+	nextFocus.style.width = coords.width + 'px';
+	nextFocus.style.left = coords.left + 'px';
+	nextFocus.style.top = coords.top + coords.height + 'px';
 	currentFocus.setAttribute('aria-expanded', true);
 	nextFocus.dispatchEvent(new CustomEvent('takefocus'));
 }
 
 function handleMenuClose(e) {
 	// listen for the close of a child
-	var span = this.shadowRoot.querySelector('span');
+	var span = this.querySelector('span');
 	close(span, this);
 	e.stopPropagation();
 }
@@ -61,8 +61,7 @@ function isVisible (elem) {
 
 function getChildElements (span) {
 	var elements = [];
-	var content = span.querySelector('content');
-	var children = Array.prototype.slice.call(content.getDistributedNodes(), 0);
+	var children = Array.prototype.slice.call(span.children, 0);
 
 	children.forEach(function (child) {
 		if (child.nodeType === 1) {
@@ -72,8 +71,8 @@ function getChildElements (span) {
 	return elements;
 }
 
-function getChildMenu(span) {
-	var children = getChildElements(span);
+function getChildMenu(us) {
+	var children = getChildElements(us);
 	var menu = children.filter( function (child) {
 		return child.nodeName == 'ARIA-MENU';
 	});
@@ -81,15 +80,14 @@ function getChildMenu(span) {
 }
 
 function handleSelect() {
-	var span = this.shadowRoot.querySelector('span');
-	var menu = getChildMenu(span);
+	var menu = getChildMenu(this);
 
 	if (menu && menu.length) {
-		if (!isVisible(span)) {
-			open(span, menu[0], this);
+		if (!isVisible(menu[0])) {
+			open(menu[0], this);
 			this.setAttribute('selected', true);
 		} else {
-			close(span, this);
+			close(menu[0], this);
 			this.setAttribute('selected', false);
 		}
 	} else {
@@ -101,11 +99,10 @@ function handleSelect() {
 }
 
 function handleUnSelect() {
-	var span = this.shadowRoot.querySelector('span');
-	var menu = getChildMenu(span);
+	var menu = getChildMenu(this);
 
-	if (menu && menu.length && isVisible(span)) {
-		close(span, this);
+	if (menu && menu.length && isVisible(menu[0])) {
+		close(menu[0], this);
 	} else {
 		this.tabIndex = -1;
 		this.setAttribute('selected', false);
@@ -130,8 +127,6 @@ function handleUnSelect() {
 export class AriaMenuitem {
 	constructor(el: NgElement) {
 		var us = el.domElement;
-		var shadowRoot = us.shadowRoot;
-		var span = shadowRoot.querySelector('span');
 
 		us.setAttribute('role', 'menuitem');
 		us.style.width = us.getAttribute('width');
@@ -148,7 +143,7 @@ export class AriaMenuitem {
 		}
 
 		// look for sub-menus
-		var menu = getChildMenu(shadowRoot.querySelector('span'));
+		var menu = getChildMenu(us);
 		if (menu && menu.length) {
 			us.setAttribute('aria-haspopup', true);
 			us.setAttribute('aria-expanded', false);
