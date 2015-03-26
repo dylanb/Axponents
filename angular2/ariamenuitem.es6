@@ -59,9 +59,9 @@ function isVisible (elem) {
 	return !(!elem.offsetWidth || !elem.offsetHeight);
 }
 
-function getChildElements (span) {
+function getChildElements (us) {
 	var elements = [];
-	var children = Array.prototype.slice.call(span.children, 0);
+	var children = Array.prototype.slice.call(us.children, 0);
 
 	children.forEach(function (child) {
 		if (child.nodeType === 1) {
@@ -117,9 +117,7 @@ function handleUnSelect() {
 @Template({
 	inline: `
 	<content select="label"></content>
-	<span>
-		<content select="aria-menu,aria-menuitem"></content>
-	</span>
+	<content select="aria-menu,aria-menuitem"></content>
 	<style>@import "aria-menuitem.css";</style>
 	`
 })

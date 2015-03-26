@@ -114,7 +114,7 @@ function handleKeyDown (e) {
 function handleClick(e) {
 	var children = getChildElements(this);
 	children.forEach(function (child) {
-		if (child === e.target) {
+		if (child === e.target || child.querySelector('label') === e.target) {
 			// select (open if sub-menu otherwise click)
 			children[0].tabIndex = 0;
 			child.dispatchEvent(new CustomEvent('selectmenu'));

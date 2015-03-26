@@ -5,6 +5,7 @@ import {AriaMenubar} from 'myapp/ariamenubar';
 import {AriaMenuitem} from 'myapp/ariamenuitem';
 import {AriaMenu} from 'myapp/ariamenu';
 
+var supportsShadowDOM = ('function' === typeof document.body.createShadowRoot);
 @Component({
     selector:'my-app'
 })
@@ -42,17 +43,30 @@ import {AriaMenu} from 'myapp/ariamenu';
                 </aria-menuitem>
             </aria-menu>
         </aria-menuitem>
-    </aria-menubar>`,
+    </aria-menubar>
+    <div class="content">
+        {{menuValue}}
+    </div>
+    <style>@import "myapp.css";</style>
+    `,
   directives:[AriaMenubar, AriaMenuitem, AriaMenu]
 })
 class MyApp {
     elem:NgElement;
+    string:menuValue;
     constructor(el: NgElement) {
         this.elem = el;
+        this.menuValue = 'nothing';
     }
     handleMenuChange() {
-        console.log("application menu changed", this.elem.domElement.shadowRoot.querySelector('aria-menubar').getAttribute('value'));
+        if (supportsShadowDOM) {
+            this.menuValue = this.elem.domElement.shadowRoot.querySelector('aria-menubar').getAttribute('value');
+            console.log("application menu changed", this.menuValue);
+        } else {
+            this.menuValue = this.elem.domElement.querySelector('aria-menubar').getAttribute('value');
+            console.log("application menu changed", this.menuValue);
+        }
     }
 }
-bootstrap(MyApp, 'function' === typeof document.body.createShadowRoot ?
+bootstrap(MyApp, supportsShadowDOM ?
     [bind(ShadowDomStrategy).toClass(NativeShadowDomStrategy)] : undefined);

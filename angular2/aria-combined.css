@@ -1,0 +1,65 @@
+/*
+ * aria-menuitem styles
+ */
+aria-menuitem {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height:3.236em;
+	float: left;
+	width:100%;
+	background: #999999;
+	text-align: center;
+	color:#fff;
+	display:inline-block;
+}
+/*
+ * The code associated with this not ready yet
+ *
+:host([selected="true"]) {
+	background: #ffffe0;
+	color: #000000;
+}
+*/
+aria-menuitem.open {
+	padding-bottom:0;
+}
+aria-menuitem:focus {
+	outline: none;
+}
+aria-menuitem:hover,
+aria-menuitem:focus {
+	background: #CCCCCC;
+	color: #000000;
+}
+
+/*
+ * aria-menu styles
+ */
+aria-menu {
+	padding: 0;
+	margin: 0;
+	float:left;
+	width:100%;
+	display: none;
+	width: 100%;
+}
+
+aria-menu.open {
+	display:block;
+	position:absolute;
+}
+
+/*
+ * aria-menubar styles
+ */
+aria-menubar {
+	padding: 0;
+	margin: 0;
+	width:100%;
+	display:block;
+}
+aria-menubar:after {
+	content: "";
+	display:table;
+	clear:both;
+}
+

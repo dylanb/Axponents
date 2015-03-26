@@ -1,5 +1,6 @@
 import {Component, Template, bootstrap, NgElement, PropertySetter} from 'angular2/angular2';
 
+var supportsShadowDOM = ('function' === typeof document.body.createShadowRoot);
 var KEY_LEFT = 37;
 var KEY_UP = 38;
 var KEY_RIGHT = 39;
@@ -27,7 +28,8 @@ function openOrSelect (e) {
 	var children = getChildElements(this);
 	var that = this;
 	children.forEach(function (child) {
-		if (child === e.target && !child.getAttribute('selected')) {
+		if ((child === e.target || child.querySelector('label') === e.target) &&
+			child.getAttribute('selected') !== 'true') {
 			// select (open if sub-menu otherwise click)
 			child.setAttribute('selected', true);
 			that.setAttribute('value', '');
@@ -167,6 +169,13 @@ export class AriaMenubar {
 		us.addEventListener('keydown', handleKeyDown, false);
 		us.addEventListener('click', openOrSelect, false);
 		us.addEventListener('change', handleChange, false);
+
+		if (!supportsShadowDOM) {
+			var link = document.createElement('link');
+			link.setAttribute('rel', 'stylesheet');
+			link.setAttribute('href', 'aria-combined.css');
+			document.body.appendChild(link);
+		}
 	}
 	onDestroy(el: NgElement) {
 		var us = el.domElement;
