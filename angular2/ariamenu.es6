@@ -6,6 +6,7 @@ var KEY_RIGHT = 39;
 var KEY_DOWN = 40;
 var KEY_ENTER = 13;
 var KEY_ESC = 27;
+var blurTimer;
 
 function isVisible (elem) {
 	return !(!elem.offsetWidth || !elem.offsetHeight);
@@ -152,6 +153,27 @@ function handleChange(e) {
 	}
 }
 
+function handleBlur(e) {
+	var that = this;
+	console.log('menu blur');
+	// TODO: commented out until this bug gets fixed https://github.com/angular/angular/issues/1050
+	// if (!blurTimer) {
+	// 	blurTimer = setTimeout(function () {
+	// 		console.log('timeout');
+	// 		close.call(that, e);
+	// 		blurTimer = undefined;
+	// 	}, 100);
+	// }
+}
+
+function handleFocus(e) {
+	console.log('menu focus');
+	if (blurTimer) {
+		clearTimeout(blurTimer);
+		blurTimer = undefined;
+	}
+}
+
 @Component({
 	selector: 'aria-menu',
 	lifecycle: [ 'onDestroy' ]
@@ -164,15 +186,19 @@ function handleChange(e) {
 })
 // Component controller
 export class AriaMenu {
+	children: Array<any>;
 	constructor(el: NgElement) {
 		var us = el.domElement;
 
+		this.children = [];
 		us.setAttribute('role', 'menu');
 		// TODO: figure out how to unbind this when needed
 		us.addEventListener('keydown', handleKeyDown, false);
 		us.addEventListener('takefocus', takeFocus, false);
 		us.addEventListener('click', handleClick, false);
 		us.addEventListener('change', handleChange, false);
+		us.addEventListener('blur', handleBlur, false);
+		us.addEventListener('focus', handleFocus, false);
 	}
 	onDestroy(el: NgElement) {
 		var us = el.domElement;
@@ -180,6 +206,11 @@ export class AriaMenu {
 		us.removeEventListener('takefocus', takeFocus, false);
 		us.removeEventListener('click', handleClick, false);
 		us.removeEventListener('change', handleChange, false);
+		us.removeEventListener('blur', handleBlur, false);
+		us.removeEventListener('focus', handleFocus, false);
+	}
+	registerChild(child) {
+		this.children.push(child);
 	}
 }
 

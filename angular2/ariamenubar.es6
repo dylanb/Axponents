@@ -1,4 +1,6 @@
-import {Component, Template, bootstrap, NgElement, PropertySetter} from 'angular2/angular2';
+import {Component, Template, NgElement} from 'angular2/angular2';
+import {EventEmitter} from 'angular2/src/core/annotations/di';
+import {AriaMenuitem} from 'myapp/ariamenuitem';
 
 var supportsShadowDOM = ('function' === typeof document.body.createShadowRoot);
 var KEY_LEFT = 37;
@@ -120,24 +122,22 @@ function handleKeyDown (e) {
 	}
 }
 
-function handleChange(e) {
-	var currentValue, newValue;
-	if (e.target !== this) {
-		currentValue = this.getAttribute('value');
-		newValue = e.target.getAttribute('value');
-		if (currentValue !== newValue) {
-			this.setAttribute('value', newValue);
-			this.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
-		}
-		e.stopPropagation();
-		e.preventDefault();
-	}
+function handleBlur(e) {
+	console.log('menubar blur');
 }
 
+function handleFocus(e) {
+	console.log('menubar focus');
+}
 
 @Component({
 	selector: 'aria-menubar',
-	lifecycle: [ 'onDestroy' ]
+	lifecycle: [ 'onDestroy' ],
+	events: {
+		'^keydown': 'onKeydown($event)',
+		'^change': 'onChange($event)',
+		'^click': 'onClick($event)'
+	}
 })
 @Template({
 	inline: `
@@ -147,11 +147,17 @@ function handleChange(e) {
 })
 // Component controller
 export class AriaMenubar {
-	constructor(el: NgElement, @PropertySetter('title') propSetter: Function) {
-		var us = el.domElement;
-		var nodes = getChildElements(us);
+	children: Array<any>;
+	value: any;
+	domElement:any;
+	menuChanged:Function;
+	constructor(el: NgElement, @EventEmitter('menuchanged') menuChanged: Function) {
+		this.domElement = el.domElement;
+		this.menuChanged = menuChanged;
+		this.children = [];
+		var nodes = getChildElements(this.domElement);
 
-		us.setAttribute('role', 'menubar');
+		this.domElement.setAttribute('role', 'menubar');
 		// set the width of the children to responsively fill the
 		// whole menu bar
 		var children = 0;
@@ -166,22 +172,42 @@ export class AriaMenubar {
 			}
 		}
 		// TODO: figure out how to unbind this when needed
-		us.addEventListener('keydown', handleKeyDown, false);
-		us.addEventListener('click', openOrSelect, false);
-		us.addEventListener('change', handleChange, false);
-
+		this.domElement.addEventListener('keydown', handleKeyDown, false);
+		this.domElement.addEventListener('click', openOrSelect, false);
 		if (!supportsShadowDOM) {
 			var link = document.createElement('link');
 			link.setAttribute('rel', 'stylesheet');
 			link.setAttribute('href', 'aria-combined.css');
 			document.body.appendChild(link);
 		}
+		this.domElement.addEventListener('blur', handleBlur, false);
+		this.domElement.addEventListener('focus', handleFocus, false);
 	}
 	onDestroy(el: NgElement) {
-		var us = el.domElement;
-		us.removeEventListener('keydown', handleKeyDown, false);
-		us.removeEventListener('click', openOrSelect, false);
-		us.removeEventListener('change', handleChange, false);
+		this.domElement.removeEventListener('keydown', handleKeyDown, false);
+		this.domElement.removeEventListener('click', openOrSelect, false);
+		this.domElement.removeEventListener('blur', handleBlur, false);
+		this.domElement.removeEventListener('focus', handleFocus, false);
+	}
+	onChange(e) {
+		var currentValue, newValue;
+		if (e.target !== this.domElement) {
+			currentValue = this.domElement.getAttribute('value');
+			newValue = e.target.getAttribute('value');
+			if (currentValue !== newValue) {
+				this.domElement.setAttribute('value', newValue);
+				this.menuChanged(null);
+			}
+		}
+	}
+	onClick(e) {
+		console.log('onClick');
+	}
+	onKeydown(e) {
+		console.log('onKeydown');
+	}
+	registerChild(child) {
+		this.children.push(child);
 	}
 }
 

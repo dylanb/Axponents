@@ -11,7 +11,7 @@ var supportsShadowDOM = ('function' === typeof document.body.createShadowRoot);
 })
 @Template({
   inline: `
-    <aria-menubar (change)="handleMenuChange()">
+    <aria-menubar (menuchanged)="handleMenuChange()">
         <aria-menuitem>
             <label>One</label>
             <aria-menu>
@@ -61,11 +61,10 @@ class MyApp {
     handleMenuChange() {
         if (supportsShadowDOM) {
             this.menuValue = this.elem.domElement.shadowRoot.querySelector('aria-menubar').getAttribute('value');
-            console.log("application menu changed", this.menuValue);
         } else {
             this.menuValue = this.elem.domElement.querySelector('aria-menubar').getAttribute('value');
-            console.log("application menu changed", this.menuValue);
         }
+        console.log("application menu changed", this.menuValue);
     }
 }
 bootstrap(MyApp, supportsShadowDOM ?

@@ -1,5 +1,7 @@
-import {Component, Template, bootstrap, NgElement} from 'angular2/angular2';
-
+import {Component, Template, bootstrap, NgElement, Parent, Ancestor} from 'angular2/angular2';
+import {Optional} from 'angular2/di';
+import {AriaMenubar} from 'myapp/ariamenubar';
+import {AriaMenu} from 'myapp/ariamenu';
 
 function getElementCoordinates(node) {
 	var coords = {
@@ -109,6 +111,16 @@ function handleUnSelect() {
 	}
 }
 
+function handleBlur(e) {
+	console.log('aria-menuitem blur');
+	this.parentNode.dispatchEvent(new Event('blur'));
+}
+
+function handleFocus(e) {
+	console.log('aria-menuitem focus');
+	this.parentNode.dispatchEvent(new Event('focus'));
+}
+
 // Annotation section
 @Component({
 	selector: 'aria-menuitem',
@@ -123,9 +135,13 @@ function handleUnSelect() {
 })
 // Component controller
 export class AriaMenuitem {
-	constructor(el: NgElement) {
+	parent:any;
+	constructor(el: NgElement,
+		@Optional() @Parent() parentMenubar: AriaMenubar,
+		@Optional() @Parent() parentMenu: AriaMenu) {
 		var us = el.domElement;
-
+		this.parent = (parentMenu !== null) ? parentMenu : parentMenubar;
+		this.parent.registerChild(this);
 		us.setAttribute('role', 'menuitem');
 		us.style.width = us.getAttribute('width');
 		// Set the span to the same width as ourselves
@@ -151,11 +167,15 @@ export class AriaMenuitem {
 		us.addEventListener('aria-menuclose', handleMenuClose, false);
 		us.addEventListener('selectmenu', handleSelect, false);
 		us.addEventListener('unselectmenu', handleUnSelect, false);
+		us.addEventListener('blur', handleBlur, false);
+		us.onfocus = handleFocus;
 	}
 	onDestroy(el: NgElement) {
 		var us = el.domElement;
 		us.removeEventListener('aria-menuclose', handleMenuClose, false);
 		us.removeEventListener('selectmenu', handleSelect, false);
 		us.removeEventListener('unselectmenu', handleUnSelect, false);		
+		us.removeEventListener('blur', handleBlur, false);
+		us.onfocus = undefined;
 	}
 }
