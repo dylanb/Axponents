@@ -1,4 +1,4 @@
-import {Component, Template, bootstrap, NgElement, Parent, Ancestor} from 'angular2/angular2';
+import {Component, Template, NgElement, Parent, Ancestor} from 'angular2/angular2';
 import {Optional} from 'angular2/di';
 import {AriaMenubar} from 'myapp/ariamenubar';
 import {AriaMenu} from 'myapp/ariamenu';
@@ -26,104 +26,13 @@ function getElementCoordinates(node) {
 	return coords;
 }
 
-function close(menu, nextFocus, doFocus) {
-	menu.classList.remove('open');
-	nextFocus.classList.remove('open');
-	nextFocus.tabIndex = 0;
-	nextFocus.setAttribute('aria-expanded', false);
-	if (doFocus) {
-		nextFocus.focus();
-	}
-}
-
-function open(nextFocus, currentFocus) {
-	var coords;
-
-	nextFocus.classList.add('open');
-	currentFocus.classList.add('open');
-	currentFocus.tabIndex = -1;
-	coords = getElementCoordinates(currentFocus);
-	nextFocus.style.width = coords.width + 'px';
-	nextFocus.style.left = coords.left + 'px';
-	nextFocus.style.top = coords.top + coords.height + 'px';
-	currentFocus.setAttribute('aria-expanded', true);
-	nextFocus.dispatchEvent(new CustomEvent('takefocus'));
-}
-
-function handleMenuClose(e) {
-	// listen for the close of a child
-	var span = this.querySelector('span');
-	close(span, this);
-	e.stopPropagation();
-}
-
-function isVisible (elem) {
-	return !(!elem.offsetWidth || !elem.offsetHeight);
-}
-
-function getChildElements (us) {
-	var elements = [];
-	var children = Array.prototype.slice.call(us.children, 0);
-
-	children.forEach(function (child) {
-		if (child.nodeType === 1) {
-			elements.push(child);
-		}
-	});
-	return elements;
-}
-
-function getChildMenu(us) {
-	var children = getChildElements(us);
-	var menu = children.filter( function (child) {
-		return child.nodeName == 'ARIA-MENU';
-	});
-	return menu;
-}
-
-function handleSelect() {
-	var menu = getChildMenu(this);
-
-	if (menu && menu.length) {
-		if (!isVisible(menu[0])) {
-			open(menu[0], this);
-			this.setAttribute('selected', true);
-		} else {
-			close(menu[0], this);
-			this.setAttribute('selected', false);
-		}
-	} else {
-		this.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
-		this.tabIndex = 0;
-		this.focus();
-		this.setAttribute('selected', true);
-	}
-}
-
-function handleUnSelect() {
-	var menu = getChildMenu(this);
-
-	if (menu && menu.length && isVisible(menu[0])) {
-		close(menu[0], this);
-	} else {
-		this.tabIndex = -1;
-		this.setAttribute('selected', false);
-	}
-}
-
-function handleBlur(e) {
-	console.log('aria-menuitem blur');
-	this.parentNode.dispatchEvent(new Event('blur'));
-}
-
-function handleFocus(e) {
-	console.log('aria-menuitem focus');
-	this.parentNode.dispatchEvent(new Event('focus'));
-}
-
 // Annotation section
 @Component({
 	selector: 'aria-menuitem',
+	events: {
+		'^blur': 'handleBlur($event)',
+		'^focus': 'handleFocus($event)'
+	},
 	lifecycle: [ 'onDestroy' ]
 })
 @Template({
@@ -136,46 +45,149 @@ function handleFocus(e) {
 // Component controller
 export class AriaMenuitem {
 	parent:any;
+	domElement:any;
+	menu:any;
 	constructor(el: NgElement,
 		@Optional() @Parent() parentMenubar: AriaMenubar,
 		@Optional() @Parent() parentMenu: AriaMenu) {
-		var us = el.domElement;
+		this.domElement = el.domElement;
 		this.parent = (parentMenu !== null) ? parentMenu : parentMenubar;
 		this.parent.registerChild(this);
-		us.setAttribute('role', 'menuitem');
-		us.style.width = us.getAttribute('width');
-		// Set the span to the same width as ourselves
-		// because the absolute positioning picks
-		// up on the width of the whole document and we want to be
-		// responsive
-		if (!us.previousElementSibling &&
-			(us.parentNode.nodeName !== 'ARIA-MENU' || us.parentNode.hasAttribute('popup'))) {
+		this.domElement.setAttribute('role', 'menuitem');
+
+		// TODO: figure out how to do this via component APIs
+		if (!this.domElement.previousElementSibling &&
+			(this.domElement.parentNode.nodeName !== 'ARIA-MENU' || this.domElement.parentNode.hasAttribute('popup'))) {
 			// only make this element focusable if it is the topmost first element in the tree
-			us.tabIndex = 0;
+			this.domElement.tabIndex = 0;
 		} else {
-			us.tabIndex = -1;
+			this.domElement.tabIndex = -1;
 		}
 
-		// look for sub-menus
-		var menu = getChildMenu(us);
-		if (menu && menu.length) {
-			us.setAttribute('aria-haspopup', true);
-			us.setAttribute('aria-expanded', false);
-		}
-
-		// handle events
-		us.addEventListener('aria-menuclose', handleMenuClose, false);
-		us.addEventListener('selectmenu', handleSelect, false);
-		us.addEventListener('unselectmenu', handleUnSelect, false);
-		us.addEventListener('blur', handleBlur, false);
-		us.onfocus = handleFocus;
 	}
 	onDestroy(el: NgElement) {
-		var us = el.domElement;
-		us.removeEventListener('aria-menuclose', handleMenuClose, false);
-		us.removeEventListener('selectmenu', handleSelect, false);
-		us.removeEventListener('unselectmenu', handleUnSelect, false);		
-		us.removeEventListener('blur', handleBlur, false);
-		us.onfocus = undefined;
+	}
+	/*
+	 * Event handlers
+	 */
+	handleBlur(e) {
+		this.domElement.parentNode.dispatchEvent(new Event('blur'));
+	}
+	handleFocus(e) {
+		this.domElement.parentNode.dispatchEvent(new Event('focus'));
+	}
+	/*
+	 * API
+	 */
+	registerChild(child) {
+		this.menu = child;
+		this.hasMenu = true;
+	}
+	isMyDomElement(domElement:any) {
+		var retVal = (this.domElement === domElement);
+		return retVal;
+	}
+	isMyDomOrLabel(domElement:any) {
+		var retVal = ((this.domElement === domElement) ||
+				(this.domElement.querySelector('label') === domElement));
+		return retVal;
+	}
+	close() {
+		console.log('close');
+
+		this.menu.removeFocus();
+
+		this.domElement.classList.remove('open');
+		this.domElement.tabIndex = 0;
+		this.domElement.setAttribute('aria-expanded', false);
+		this.domElement.focus();
+	}
+	open() {
+		console.log('open');
+		this.domElement.classList.add('open');
+		this.domElement.tabIndex = -1;
+		this.domElement.setAttribute('aria-expanded', true);
+
+		var coords = getElementCoordinates(this.domElement);
+		this.menu.takeFocus(coords.width, coords.left, coords.top, coords.height);
+	}
+	closeMenu() {
+		this.close();
+	}
+	takeFocus() {
+		this.domElement.tabIndex = 0;
+		this.domElement.focus();
+	}
+	removeFocus() {
+		this.domElement.tabIndex = -1;
+	}
+	/*
+	 * Getters and Setters
+	 */
+	/*
+	 * selected property
+	 */
+	set selected(value) {
+		if (value === true) {
+			if (this.hasMenu) {
+				if (!this.menu.visible) {
+					this.open();
+					this.domElement.setAttribute('selected', 'true');
+					this.value = '';
+				} else {
+					this.close();
+					this.domElement.setAttribute('selected', 'false');
+				}
+			} else {
+				this.domElement.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
+				this.domElement.tabIndex = 0;
+				this.domElement.focus();
+				this.domElement.setAttribute('selected', 'true');
+			}
+		} else {
+			if (this.hasMenu && this.menu.visible) {
+				this.close();
+			} else {
+				this.domElement.tabIndex = -1;
+			}
+			this.domElement.setAttribute('selected', 'false');
+		}
+	}
+	get selected() {
+		return (this.domElement.getAttribute('selected') === 'true');
+	}
+	/*
+	 * value property
+	 */
+	set value(value) {
+		this.domElement.setAttribute('value', value);
+	}
+	get value() {
+		return this.domElement.getAttribute('value');
+	}
+	/*
+	 * width property
+	 */
+	set width(value) {
+		this.domElement.style.width = value
+		this.domElement.setAttribute('width', value);
+	}
+	/*
+	 * hasMenu property
+	 */
+	get hasMenu() {
+		return (this.domElement.getAttribute('aria-haspopup') === 'true');
+	}
+	set hasMenu(value) {
+		if (value === true) {
+			this.domElement.setAttribute('aria-expanded', false);
+		}
+		this.domElement.setAttribute('aria-haspopup', value);
+	}
+	/*
+	 * visible property
+	 */
+	get visible() {
+		return !(!this.domElement.offsetWidth || !this.domElement.offsetHeight)
 	}
 }
