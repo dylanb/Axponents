@@ -30,7 +30,7 @@ export class AriaMenubar {
 	children: Array<any>;
 	domElement:any;
 	menuChanged:Function;
-	constructor(el: NgElement, @EventEmitter('menuchanged') menuChanged: Function) {
+	constructor(el: NgElement, @EventEmitter('change') menuChanged: Function) {
 		this.domElement = el.domElement;
 		this.menuChanged = menuChanged;
 		this.children = [];

@@ -11,7 +11,7 @@ var supportsShadowDOM = ('function' === typeof document.body.createShadowRoot);
 })
 @Template({
   inline: `
-    <aria-menubar (menuchanged)="handleMenuChange()">
+    <aria-menubar (change)="handleMenuChange()">
         <aria-menuitem>
             <label>One</label>
             <aria-menu>

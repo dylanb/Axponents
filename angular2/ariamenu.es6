@@ -36,7 +36,7 @@ export class AriaMenu {
 	menuChanged:Function;
 	constructor(el: NgElement,
 		@Optional() @Parent() parentMenuitem: AriaMenuitem,
-		@EventEmitter('menuchanged') menuChanged: Function) {
+		@EventEmitter('change') menuChanged: Function) {
 
 		// remember our DOM element
 		this.domElement = el.domElement;
