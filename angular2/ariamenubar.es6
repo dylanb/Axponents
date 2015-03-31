@@ -16,7 +16,6 @@ var KEY_ENTER = 13;
 		'^keydown': 'onKeydown($event)',
 		'^blur': 'onBlur($event)',
 		'^focus': 'onFocus($event)',
-		'^change': 'onChange($event)',
 		'^click': 'onClick($event)'
 	}
 })
@@ -57,21 +56,17 @@ export class AriaMenubar {
 			child.width = 99/numChildren + '%'
 		});
 	}
+	setSelected(child) {
+		this.children.forEach(function (ch) {
+			if (ch !== child) {
+				ch.selected = false;
+			}
+		});
+	}
 	/*
 	 * Event handlers
 	 */
-	onChange(e) {
-		var currentValue, newValue;
-		if (e.target !== this.domElement) {
-			currentValue = this.value;
-			newValue = e.target.getAttribute('value');
-			if (currentValue !== newValue) {
-				this.value = newValue;
-			}
-		}
-	}
 	onClick(e) {
-		console.log('onClick');
 		this.openOrSelect(e);
 	}
 	openOrSelect (e) {
@@ -81,7 +76,6 @@ export class AriaMenubar {
 			} else if (child.isMyDomOrLabel(e.target)) {
 				child.selected = false;
 			} else if (child.hasMenu) {
-				// TODO: this results in selected items in other menus or at the top level still having the selected attribute set
 				child.selected = false;
 			}
 		});
@@ -89,7 +83,6 @@ export class AriaMenubar {
 		e.stopPropagation();
 	}
 	onKeydown(e) {
-		console.log('onKeydown');
 		var which = e.which || e.keyCode;
 		var handled = false;
 		var keysWeHandle = [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_ENTER];
@@ -120,10 +113,10 @@ export class AriaMenubar {
 		}
 	}
 	onBlur(e) {
-		console.log('onBlur');
+		// console.log('onBlur');
 	}
 	onFocus(e) {
-		console.log('onFocus');
+		// console.log('onFocus');
 	}
 	/*
 	 * Getters and setters

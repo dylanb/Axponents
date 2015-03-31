@@ -121,6 +121,10 @@ export class AriaMenuitem {
 	removeFocus() {
 		this.domElement.tabIndex = -1;
 	}
+	selectAndClose() {
+		this.selected = true; // this will close the menu
+		this.parent.setSelected(this); // reset all peer elements to not selected
+	}
 	/*
 	 * Getters and Setters
 	 */
@@ -139,10 +143,11 @@ export class AriaMenuitem {
 					this.domElement.setAttribute('selected', 'false');
 				}
 			} else {
-				this.domElement.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
 				this.domElement.tabIndex = 0;
 				this.domElement.focus();
 				this.domElement.setAttribute('selected', 'true');
+				this.parent.value = this.value;
+				this.parent.setSelected(this);
 			}
 		} else {
 			if (this.hasMenu && this.menu.visible) {
@@ -161,6 +166,9 @@ export class AriaMenuitem {
 	 */
 	set value(value) {
 		this.domElement.setAttribute('value', value);
+		if (value !== '') {
+			this.parent.value = value; //cascade
+		}
 	}
 	get value() {
 		return this.domElement.getAttribute('value');

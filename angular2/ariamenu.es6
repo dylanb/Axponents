@@ -1,4 +1,5 @@
-import {Component, Template, NgElement, Parent, Ancestor} from 'angular2/angular2';
+import {Component, Template, NgElement, Parent, PropertySetter} from 'angular2/angular2';
+import {EventEmitter} from 'angular2/src/core/annotations/di';
 import {Optional} from 'angular2/di';
 import {AriaMenuitem} from 'myapp/ariamenuitem';
 
@@ -10,26 +11,13 @@ var KEY_ENTER = 13;
 var KEY_ESC = 27;
 var blurTimer;
 
-function handleChange(e) {
-	var currentValue, newValue;
-	if (e.target !== this) {
-		currentValue = this.getAttribute('value');
-		newValue = e.target.getAttribute('value');
-		if (currentValue !== newValue) {
-			this.setAttribute('value', newValue);
-			this.dispatchEvent(new Event('change', {'bubbles': true, 'cancelable': true}));
-		}
-		e.stopPropagation();
-		e.preventDefault();
-	}
-}
-
 @Component({
 	selector: 'aria-menu',
 	events: {
 		'^click': 'handleClick($event)',
 		'^blur': 'handleBlur($event)',
 		'^focus': 'handleFocus($event)',
+		'^change': 'handleChange($event)',
 		'^keydown': 'handleKeyDown($event)'
 	},
 	lifecycle: [ 'onDestroy' ]
@@ -46,22 +34,33 @@ export class AriaMenu {
 	parent:any;
 	domElement:any;
 	blurTimer:any;
+	menuChanged:Function;
 	constructor(el: NgElement,
-		@Optional() @Parent() parentMenuitem: AriaMenuitem) {
+		@Optional() @Parent() parentMenuitem: AriaMenuitem, @EventEmitter('menuchanged') menuChanged: Function) {
 		this.domElement = el.domElement;
 
+		this.menuChanged = menuChanged;
 		this.parent = parentMenuitem;
 		this.parent.registerChild(this);
 		this.children = [];
 		this.domElement.setAttribute('role', 'menu');
-		// TODO: figure out how to unbind this when needed
-		this.domElement.addEventListener('change', handleChange, false);
 	}
 	onDestroy(el: NgElement) {
-		this.domElement.removeEventListener('change', handleChange, false);
 	}
 	registerChild(child) {
 		this.children.push(child);
+	}
+	handleChange(e) {
+		var currentValue, newValue;
+		if (e.target !== this) {
+			currentValue = this.value;
+			newValue = e.target.getAttribute('value');
+			if (currentValue !== newValue) {
+				this.value = newValue;
+			}
+			e.stopPropagation();
+			e.preventDefault();
+		}
 	}
 	handleClick(e) {
 		var children = this.children.filter(function (child) {
@@ -167,12 +166,21 @@ export class AriaMenu {
 	removeFocus() {
 		this.domElement.classList.remove('open');
 	}
+	setSelected(child) {
+		this.children.forEach(function (ch) {
+			if (ch !== child) {
+				ch.selected = false;
+			}
+		});
+		if (this.parent !== null) {
+			this.parent.selectAndClose();
+		}
+	}
 	close() {
 		this.parent.selected = false;
 	}
 	handleBlur(e) {
 		var that = this;
-		console.log('menu blur');
 		// TODO: commented out until this bug gets fixed https://github.com/angular/angular/issues/1050
 		if (!this.blurTimer) {
 			// this.blurTimer = setTimeout(function () {
@@ -183,7 +191,6 @@ export class AriaMenu {
 		}
 	}
 	handleFocus(e) {
-		console.log('menu focus');
 		if (this.blurTimer) {
 			clearTimeout(this.blurTimer);
 			this.blurTimer = undefined;
@@ -191,6 +198,15 @@ export class AriaMenu {
 	}
 	set value(value) {
 		this.domElement.setAttribute('value', value);
+		if (value !== '') {
+			if (this.parent === null) {
+				// If the menu is standalone
+				this.menuChanged(null);
+			} else {
+				// cascade the value
+				this.parent.value = value;
+			}
+		}
 	}
 	get value() {
 		return this.domElement.getAttribute('value');
