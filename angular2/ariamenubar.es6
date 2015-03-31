@@ -121,6 +121,9 @@ export class AriaMenubar {
 	/*
 	 * Getters and setters
 	 */
+	/*
+	 * value property
+	 */
 	get value() {
 		return this.domElement.getAttribute('value');
 	}
