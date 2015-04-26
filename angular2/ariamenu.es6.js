@@ -1,7 +1,8 @@
-import {Component, Template, NgElement, Parent, PropertySetter} from 'angular2/angular2';
-import {EventEmitter} from 'angular2/src/core/annotations/di';
-import {Optional} from 'angular2/di';
-import {AriaMenuitem} from 'myapp/ariamenuitem';
+import {Component, View, NgElement, Parent, PropertySetter, EventEmitter} from 'angular2/angular2';
+import {Optional} from 'angular2/src/di/annotations';
+import {AriaMenuitem} from 'ariamenuitem';
+
+console.log(NgElement);
 
 var KEY_LEFT = 37;
 var KEY_UP = 38;
@@ -13,47 +14,43 @@ var blurTimer;
 
 @Component({
 	selector: 'aria-menu',
-	events: {
+	events: ['change'],
+	hostListeners: {
 		'^click': 'handleClick($event)',
 		'^blur': 'handleBlur($event)',
 		'^focus': 'handleFocus($event)',
 		'^keydown': 'handleKeyDown($event)'
-	},
-	lifecycle: [ 'onDestroy' ]
+	}
 })
-@Template({
-	inline: `
-	<content></content>
-	<style>@import "aria-menu.css";</style>
-	`
+@View({
+	template: '<content></content>'
 })
-// Component controller
 export class AriaMenu {
 	children: Array<any>;
 	parent:any;
 	domElement:any;
 	blurTimer:any;
-	menuChanged:Function;
+	change:EventEmitter;
 	constructor(el: NgElement,
-		@Optional() @Parent() parentMenuitem: AriaMenuitem,
-		@EventEmitter('change') menuChanged: Function) {
+		@Optional() @Parent() parentMenuitem: AriaMenuitem) {
 
 		// remember our DOM element
 		this.domElement = el.domElement;
 
-		this.menuChanged = menuChanged;
+		this.change = new EventEmitter();
 		this.parent = parentMenuitem;
-		this.parent.registerChild(this);
+		if (this.parent) {
+			this.parent.registerChild(this);
+		}
 		this.children = [];
 		this.domElement.setAttribute('role', 'menu');
-	}
-	onDestroy(el: NgElement) {
 	}
 	/*
 	 * Our API
 	 */
 	registerChild(child) {
 		this.children.push(child);
+		return (this.parent && this.children.length === 1);
 	}
 	takeFocus(width, left, top, height) {
 		this.value = '';
@@ -206,7 +203,7 @@ export class AriaMenu {
 		if (value !== '') {
 			if (this.parent === null) {
 				// If the menu is standalone
-				this.menuChanged(null);
+				this.change.next(null);
 			} else {
 				// cascade the value
 				this.parent.value = value;

@@ -1,8 +1,5 @@
-import {Component, Template, NgElement} from 'angular2/angular2';
-import {EventEmitter} from 'angular2/src/core/annotations/di';
-import {AriaMenuitem} from 'myapp/ariamenuitem';
+import {Component, View, NgElement, PropertySetter, EventEmitter} from 'angular2/angular2';
 
-var supportsShadowDOM = ('function' === typeof document.body.createShadowRoot);
 var KEY_LEFT = 37;
 var KEY_UP = 38;
 var KEY_RIGHT = 39;
@@ -11,38 +8,33 @@ var KEY_ENTER = 13;
 
 @Component({
 	selector: 'aria-menubar',
-	lifecycle: [ 'onDestroy' ],
-	events: {
+	events: ['change'],
+	properties: {
+		'value':'value'
+	},
+	hostListeners: {
 		'^keydown': 'onKeydown($event)',
 		'^blur': 'onBlur($event)',
 		'^focus': 'onFocus($event)',
 		'^click': 'onClick($event)'
 	}
 })
-@Template({
-	inline: `
-	<content></content>
-	<style>@import "aria-menubar.css";</style>
-	`
+@View({
+	template: '<content></content>'
 })
-// Component controller
 export class AriaMenubar {
 	children: Array<any>;
 	domElement:any;
-	menuChanged:Function;
-	constructor(el: NgElement, @EventEmitter('change') menuChanged: Function) {
+	change:EventEmitter;
+	valueSetter:Function;
+	constructor(el: NgElement,
+		@PropertySetter('attr.value') valueSetter: Function) {
+		var link;
 		this.domElement = el.domElement;
-		this.menuChanged = menuChanged;
+		this.change = new EventEmitter();
+		this.valueSetter = valueSetter;
 		this.children = [];
 		this.domElement.setAttribute('role', 'menubar');
-		if (!supportsShadowDOM) {
-			var link = document.createElement('link');
-			link.setAttribute('rel', 'stylesheet');
-			link.setAttribute('href', 'aria-combined.css');
-			document.body.appendChild(link);
-		}
-	}
-	onDestroy(el: NgElement) {
 	}
 	/*
 	 * API
@@ -55,6 +47,7 @@ export class AriaMenubar {
 		this.children.forEach(function (child) {
 			child.width = 99/numChildren + '%'
 		});
+		return (numChildren === 1);
 	}
 	setSelected(child) {
 		this.children.forEach(function (ch) {
@@ -125,11 +118,11 @@ export class AriaMenubar {
 	 * value property
 	 */
 	get value() {
-		return this.domElement.getAttribute('value');
+		this.domElement.getAttribute('value');
 	}
 	set value(value) {
-		this.domElement.setAttribute('value', value);
-		this.menuChanged(null);
+		this.valueSetter(value);
+		this.change.next(null);
 	}
 	/*
 	 * Helpers
@@ -171,4 +164,3 @@ export class AriaMenubar {
 		children[index].takeFocus();
 	}
 }
-

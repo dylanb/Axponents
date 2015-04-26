@@ -1,0 +1,19 @@
+{
+  "name": "ngAxponents",
+  "version": "1.0.0",
+  "description": "Example Angular 2 Component",
+  "main": "myapp.es6.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-copy": "0.0.2",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-traceur": "^0.17.1",
+    "gulp-util": "^3.0.4",
+    "through2": "^0.6.5"
+  }
+}

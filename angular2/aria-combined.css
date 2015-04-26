@@ -11,15 +11,7 @@ aria-menuitem {
 	color:#fff;
 	display:inline-block;
 }
-/*
- * The code associated with this not ready yet
- *
-:host([selected="true"]) {
-	background: #ffffe0;
-	color: #000000;
-}
-*/
-aria-menuitem.open {
+aria-menuitem[aria-expanded=true] {
 	padding-bottom:0;
 }
 aria-menuitem:focus {
