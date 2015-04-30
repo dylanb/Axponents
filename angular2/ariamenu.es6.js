@@ -27,11 +27,22 @@ var blurTimer;
 })
 export class AriaMenu {
 	children: Array<any>;
+
 	parent:any;
+
 	domElement:any;
+
 	blurTimer:any;
+
 	change:EventEmitter;
+
+	valueSetter:PropertySetter;
+
+	_value: string;
+
 	constructor(el: NgElement,
+		@PropertySetter('attr.role') roleSetter: Function,
+		@PropertySetter('attr.value') valueSetter: Function,
 		@Optional() @Parent() parentMenuitem: AriaMenuitem) {
 
 		// remember our DOM element
@@ -43,7 +54,10 @@ export class AriaMenu {
 			this.parent.registerChild(this);
 		}
 		this.children = [];
-		this.domElement.setAttribute('role', 'menu');
+
+		roleSetter('menu');
+
+		this.valueSetter = valueSetter;
 	}
 	/*
 	 * Our API
@@ -199,7 +213,8 @@ export class AriaMenu {
 	 * value property
 	 */
 	set value(value) {
-		this.domElement.setAttribute('value', value);
+		this._value = value;
+		this.valueSetter(value);
 		if (value !== '') {
 			if (this.parent === null) {
 				// If the menu is standalone
@@ -211,7 +226,7 @@ export class AriaMenu {
 		}
 	}
 	get value() {
-		return this.domElement.getAttribute('value');
+		return this._value;
 	}
 	/*
 	 * visible property

@@ -1,4 +1,5 @@
-import {Component, View, NgElement, PropertySetter, EventEmitter} from 'angular2/angular2';
+import {Component, View, NgElement, PropertySetter, EventEmitter, Query, QueryList} from 'angular2/angular2';
+import {AriaMenuitem} from 'ariamenuitem';
 
 var KEY_LEFT = 37;
 var KEY_UP = 38;
@@ -9,9 +10,6 @@ var KEY_ENTER = 13;
 @Component({
 	selector: 'aria-menubar',
 	events: ['change'],
-	properties: {
-		'value':'value'
-	},
 	hostListeners: {
 		'^keydown': 'onKeydown($event)',
 		'^blur': 'onBlur($event)',
@@ -24,17 +22,22 @@ var KEY_ENTER = 13;
 })
 export class AriaMenubar {
 	children: Array<any>;
-	domElement:any;
 	change:EventEmitter;
 	valueSetter:Function;
-	constructor(el: NgElement,
-		@PropertySetter('attr.value') valueSetter: Function) {
+
+	_value: string;
+
+	constructor(
+		// @Query(AriaMenuitem) query: QueryList<AriaMenuitem>,
+		@PropertySetter('attr.role') roleSetter: Function,
+		@PropertySetter('attr.value') valueSetter: Function
+		) {
 		var link;
-		this.domElement = el.domElement;
 		this.change = new EventEmitter();
 		this.valueSetter = valueSetter;
 		this.children = [];
-		this.domElement.setAttribute('role', 'menubar');
+		roleSetter('menubar');
+		// console.log(query);
 	}
 	/*
 	 * API
@@ -118,9 +121,10 @@ export class AriaMenubar {
 	 * value property
 	 */
 	get value() {
-		this.domElement.getAttribute('value');
+		return this._value;
 	}
 	set value(value) {
+		this._value = value;
 		this.valueSetter(value);
 		this.change.next(null);
 	}
