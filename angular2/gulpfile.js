@@ -40,4 +40,9 @@ gulp.task('copy', function () {
 		.pipe(copy('dist'));
 });
 
-gulp.task('default', ['compile', 'copy']);
+gulp.task('watch', function () {
+    gulp.watch(['*.html', '*.css', './*.es6.js'], ['compile', 'copy']);
+});
+
+
+gulp.task('default', ['compile', 'copy', 'watch']);
