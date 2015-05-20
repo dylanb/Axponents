@@ -1,5 +1,8 @@
-import {Component, View, NgElement, Parent, PropertySetter, EventEmitter} from 'angular2/angular2';
-import {Optional} from 'angular2/src/di/annotations';
+import {ElementRef, PropertySetter, EventEmitter} from 'angular2/angular2';
+import {Parent} from 'angular2/src/core/annotations_impl/visibility';
+import {Optional} from 'angular2/src/di/annotations_impl';
+import {ComponentAnnotation as Component,
+		ViewAnnotation as View} from "angular2/angular2";
 import {AriaMenuitem} from 'ariamenuitem';
 
 var KEY_LEFT = 37;
@@ -18,6 +21,10 @@ var blurTimer;
 		'^blur': 'handleBlur($event)',
 		'^focus': 'handleFocus($event)',
 		'^keydown': 'handleKeyDown($event)'
+	},
+	hostProperties: {
+		'role': 'attr.role',
+		'value': 'attr.value'
 	}
 })
 @View({
@@ -34,13 +41,11 @@ export class AriaMenu {
 
 	change:EventEmitter;
 
-	valueSetter:PropertySetter;
+	role: string;
 
 	_value: string;
 
-	constructor(el: NgElement,
-		@PropertySetter('attr.role') roleSetter: Function,
-		@PropertySetter('attr.value') valueSetter: Function,
+	constructor(el: ElementRef,
 		@Optional() @Parent() parentMenuitem: AriaMenuitem) {
 
 		// remember our DOM element
@@ -53,9 +58,7 @@ export class AriaMenu {
 		}
 		this.children = [];
 
-		roleSetter('menu');
-
-		this.valueSetter = valueSetter;
+		this.role = 'menu';
 	}
 	/*
 	 * Our API
@@ -211,7 +214,6 @@ export class AriaMenu {
 	 */
 	set value(value) {
 		this._value = value;
-		this.valueSetter(value);
 		if (value !== '') {
 			if (this.parent === null) {
 				// If the menu is standalone

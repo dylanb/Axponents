@@ -1,7 +1,13 @@
-import {Component, View, NgElement, Parent, PropertySetter, Attribute} from 'angular2/angular2';
-import {Optional} from 'angular2/src/di/annotations';
+import {ElementRef} from 'angular2/angular2';
+import {Parent} from 'angular2/src/core/annotations_impl/visibility';
+import {Optional} from 'angular2/src/di/annotations_impl';
+import {Attribute} from 'angular2/src/core/annotations_impl/di';
+import {ComponentAnnotation as Component,
+		ViewAnnotation as View} from "angular2/angular2";
 import {AriaMenu} from 'ariamenu';
 import {AriaMenubar} from 'ariamenubar';
+
+console.log(Optional);
 
 // Annotation section
 @Component({
@@ -9,6 +15,13 @@ import {AriaMenubar} from 'ariamenubar';
 	hostListeners: {
 		'^blur': 'handleBlur($event)',
 		'^focus': 'handleFocus($event)'
+	},
+	hostProperties: {
+		'role': 'attr.role',
+		'value': 'attr.value',
+		'tabindex': 'tabindex',
+		'expanded': 'attr.aria-expanded',
+		'haspopup': 'attr.aria-haspopup',
 	}
 })
 @View({
@@ -22,41 +35,36 @@ export class AriaMenuitem {
 	menu:any;
 
 	_hasMenu:Boolean;
+
 	_selected:Boolean;
-	_value:string;
 
-	ariaExpandedSetter:PropertySetter;
-	ariaHaspopupSetter:PropertySetter;
-	tabindexSetter:PropertySetter;
-	valueSetter:PropertySetter;
+	_value: string;
 
-	constructor(el: NgElement,
+	role: string;
+
+	expanded: boolean;
+
+	haspopup: boolean;
+
+	tabindex: number;
+
+	constructor(el: ElementRef,
 		@Attribute('value') value:string,
-		@PropertySetter('tabindex') tabindexSetter: Function,
-		@PropertySetter('attr.role') roleSetter: Function,
-		@PropertySetter('attr.value') valueSetter: Function,
-		@PropertySetter('attr.aria-expanded') ariaExpandedSetter: Function,
-		@PropertySetter('attr.aria-haspopup') ariaHaspopupSetter: Function,
 		@Optional() @Parent() parentMenu: AriaMenu,
 		@Optional() @Parent() parentMenubar: AriaMenubar) {
 		this.domElement = el.domElement;
 		this.parent = (parentMenu !== null) ? parentMenu : parentMenubar;
 
-		roleSetter('menuitem');
+		this.role = 'menuitem';
 
 		this._hasMenu = false;
 		this._selected = false;
 		this._value = value;
 
-		this.ariaExpandedSetter = ariaExpandedSetter;
-		this.ariaHaspopupSetter = ariaHaspopupSetter;
-		this.valueSetter = valueSetter;
-		this.tabindexSetter = tabindexSetter;
-
 		if (this.parent.registerChild(this)) {
-			this.tabindexSetter(0);
+			this.tabindex = 0;
 		} else {
-			this.tabindexSetter(-1);
+			this.tabindex = -1;
 		}
 
 	}
@@ -88,8 +96,8 @@ export class AriaMenuitem {
 	close(dontFocus) {
 		this.menu.removeFocus();
 
-		this.tabindexSetter(0);
-		this.ariaExpandedSetter(false);
+		this.tabindex = 0;
+		this.expanded = false;
 		if (!dontFocus) {
 			this.domElement.focus();
 		} else {
@@ -119,8 +127,8 @@ export class AriaMenuitem {
 			}
 			return coords;
 		}
-		this.tabindexSetter(-1);
-		this.ariaExpandedSetter(true);
+		this.tabindex = -1;
+		this.expanded = true;
 
 		var coords = getElementCoordinates(this.domElement);
 		this.menu.takeFocus(coords.width, coords.left, coords.top, coords.height);
@@ -129,11 +137,11 @@ export class AriaMenuitem {
 		this.close();
 	}
 	takeFocus() {
-		this.tabindexSetter(0);
+		this.tabindex = 0;
 		this.domElement.focus();
 	}
 	removeFocus() {
-		this.tabindexSetter(-1);
+		this.tabindex = -1;
 	}
 	selectAndClose() {
 		this.selected = true; // this will close the menu
@@ -157,7 +165,7 @@ export class AriaMenuitem {
 					this._selected = false;
 				}
 			} else {
-				this.tabindexSetter(0);
+				this.tabindex = 0;
 				this.domElement.focus();
 				this._selected = true;
 				this.parent.value = this.value;
@@ -167,7 +175,7 @@ export class AriaMenuitem {
 			if (this.hasMenu && this.menu.visible) {
 				this.close();
 			} else {
-				this.tabindexSetter(-1);
+				this.tabindex = -1;
 			}
 			this._selected = false;
 		}
@@ -179,7 +187,6 @@ export class AriaMenuitem {
 	 * value property
 	 */
 	set value(value) {
-		this.valueSetter(value);
 		this._value = value;
 		if (value !== '') {
 			this.parent.value = value; //cascade
@@ -202,9 +209,9 @@ export class AriaMenuitem {
 	}
 	set hasMenu(value) {
 		if (value === true) {
-			this.ariaExpandedSetter(false);
+			this.expanded = false;
 		}
-		this.ariaHaspopupSetter(value);
+		this.haspopup = value;
 		this._hasMenu = value;
 	}
 	/*

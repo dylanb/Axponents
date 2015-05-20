@@ -2,10 +2,8 @@
 <html lang="en">
   <head>
     <title>ARIA Menu</title>
-    <!-- will be removed with system 0.16.6 -->
-    <script src="https://github.jspm.io/jmcriffey/bower-traceur-runtime@0.0.87/traceur-runtime.js"></script>
-    <script src="https://jspm.io/system@0.16.js"></script>
-    <script src="https://code.angularjs.org/2.0.0-alpha.20/angular2.js"></script>
+    <script src="https://jspm.io/system.js"></script>
+    <script src="https://code.angularjs.org/2.0.0-alpha.23/angular2.dev.js"></script>
     <link rel="stylesheet" type="text/css" href="aria-combined.css">
     <style>
 	.content {
@@ -29,8 +27,7 @@
 			}
 		});
 
-	// Kick off the application
-	System.import('myapp');
+  	System.import('myapp');
     </script>
   </body>
 </html>

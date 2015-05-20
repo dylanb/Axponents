@@ -1,0 +1,37 @@
+<aria-menubar (change)="handleMenuChange()">
+    <aria-menuitem>
+        <label>One</label>
+        <aria-menu>
+            <aria-menuitem value="oneone">
+                <label>One One</label>
+            </aria-menuitem>
+            <aria-menuitem value="onetwo">
+                <label>One Two</label>
+            </aria-menuitem>
+            <aria-menuitem value="onethree">
+                <label>One Three</label>
+            </aria-menuitem>
+        </aria-menu>
+    </aria-menuitem>
+    <aria-menuitem value="two">
+        <label>Two</label>
+    </aria-menuitem>
+    <aria-menuitem>
+        <label>Three</label>
+        <aria-menu>
+            <aria-menuitem value="threeone">
+                <label>Three One</label>
+            </aria-menuitem>
+            <aria-menuitem value="threetwo">
+                <label>Three Two</label>
+            </aria-menuitem>
+            <aria-menuitem value="threethree">
+                <label>Three Three</label>
+            </aria-menuitem>
+        </aria-menu>
+    </aria-menuitem>
+</aria-menubar>
+<div class="content">
+    {{menuValue}}
+</div>
+<style>@import "myapp.css";</style>
