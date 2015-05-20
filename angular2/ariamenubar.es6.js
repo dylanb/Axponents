@@ -1,4 +1,4 @@
-import {PropertySetter, EventEmitter} from 'angular2/angular2';
+import {EventEmitter} from 'angular2/angular2';
 import {ComponentAnnotation as Component, ViewAnnotation as View} from "angular2/angular2";
 import {AriaMenuitem} from 'ariamenuitem';
 
@@ -158,4 +158,7 @@ export class AriaMenubar {
 		}
 		children[index].takeFocus();
 	}
+	// these functions are required by the menuitem
+	blur() {}
+	focus() {}
 }

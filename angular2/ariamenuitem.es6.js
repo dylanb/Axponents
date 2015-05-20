@@ -2,12 +2,9 @@ import {ElementRef} from 'angular2/angular2';
 import {Parent} from 'angular2/src/core/annotations_impl/visibility';
 import {Optional} from 'angular2/src/di/annotations_impl';
 import {Attribute} from 'angular2/src/core/annotations_impl/di';
-import {ComponentAnnotation as Component,
-		ViewAnnotation as View} from "angular2/angular2";
+import {ComponentAnnotation as Component, ViewAnnotation as View} from "angular2/angular2";
 import {AriaMenu} from 'ariamenu';
 import {AriaMenubar} from 'ariamenubar';
-
-console.log(Optional);
 
 // Annotation section
 @Component({
@@ -72,10 +69,10 @@ export class AriaMenuitem {
 	 * Event handlers
 	 */
 	handleBlur(e) {
-		this.domElement.parentNode.dispatchEvent(new Event('blur'));
+		this.parent.blur();
 	}
 	handleFocus(e) {
-		this.domElement.parentNode.dispatchEvent(new Event('focus'));
+		this.parent.focus();
 	}
 	/*
 	 * API

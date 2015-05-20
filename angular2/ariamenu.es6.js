@@ -1,8 +1,7 @@
-import {ElementRef, PropertySetter, EventEmitter} from 'angular2/angular2';
+import {ElementRef, EventEmitter} from 'angular2/angular2';
 import {Parent} from 'angular2/src/core/annotations_impl/visibility';
 import {Optional} from 'angular2/src/di/annotations_impl';
-import {ComponentAnnotation as Component,
-		ViewAnnotation as View} from "angular2/angular2";
+import {ComponentAnnotation as Component, ViewAnnotation as View} from "angular2/angular2";
 import {AriaMenuitem} from 'ariamenuitem';
 
 var KEY_LEFT = 37;
@@ -18,8 +17,6 @@ var blurTimer;
 	events: ['change'],
 	hostListeners: {
 		'^click': 'handleClick($event)',
-		'^blur': 'handleBlur($event)',
-		'^focus': 'handleFocus($event)',
 		'^keydown': 'handleKeyDown($event)'
 	},
 	hostProperties: {
@@ -190,7 +187,7 @@ export class AriaMenu {
 			}
 		}
 	}
-	handleBlur(e) {
+	blur() {
 		var that = this;
 		// TODO: commented out until this bug gets fixed https://github.com/angular/angular/issues/1050
 		if (!this.blurTimer) {
@@ -200,7 +197,7 @@ export class AriaMenu {
 			}, 1);
 		}
 	}
-	handleFocus(e) {
+	focus() {
 		if (this.blurTimer) {
 			clearTimeout(this.blurTimer);
 			this.blurTimer = undefined;
