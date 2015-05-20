@@ -2,8 +2,6 @@ import {Component, View, NgElement, Parent, PropertySetter, EventEmitter} from '
 import {Optional} from 'angular2/src/di/annotations';
 import {AriaMenuitem} from 'ariamenuitem';
 
-console.log(NgElement);
-
 var KEY_LEFT = 37;
 var KEY_UP = 38;
 var KEY_RIGHT = 39;
@@ -90,8 +88,8 @@ export class AriaMenu {
 			this.parent.selectAndClose();
 		}
 	}
-	close() {
-		this.parent.selected = false;
+	close(dontFocus) {
+		this.parent.close(dontFocus);
 	}
 	/*
 	 * Helper functions
@@ -171,7 +169,7 @@ export class AriaMenu {
 					break;
 				case KEY_LEFT:
 				case KEY_ESC:
-					this.close(e);
+					this.close();
 					handled = true;
 					break;
 				case KEY_DOWN:
@@ -193,11 +191,10 @@ export class AriaMenu {
 		var that = this;
 		// TODO: commented out until this bug gets fixed https://github.com/angular/angular/issues/1050
 		if (!this.blurTimer) {
-			// this.blurTimer = setTimeout(function () {
-			// 	console.log('timeout');
-			// 	that.close();
-			// 	this.blurTimer = undefined;
-			// }, 100);
+			this.blurTimer = setTimeout(function () {
+				that.close(true);
+				this.blurTimer = undefined;
+			}, 1);
 		}
 	}
 	handleFocus(e) {

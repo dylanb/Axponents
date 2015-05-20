@@ -12,8 +12,6 @@ var KEY_ENTER = 13;
 	events: ['change'],
 	hostListeners: {
 		'^keydown': 'onKeydown($event)',
-		'^blur': 'onBlur($event)',
-		'^focus': 'onFocus($event)',
 		'^click': 'onClick($event)'
 	}
 })
@@ -107,12 +105,6 @@ export class AriaMenubar {
 				e.stopPropagation();
 			}
 		}
-	}
-	onBlur(e) {
-		// console.log('onBlur');
-	}
-	onFocus(e) {
-		// console.log('onFocus');
 	}
 	/*
 	 * Getters and setters

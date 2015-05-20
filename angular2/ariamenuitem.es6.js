@@ -85,12 +85,16 @@ export class AriaMenuitem {
 				(this.domElement.querySelector('label') === domElement));
 		return retVal;
 	}
-	close() {
+	close(dontFocus) {
 		this.menu.removeFocus();
 
 		this.tabindexSetter(0);
 		this.ariaExpandedSetter(false);
-		this.domElement.focus();
+		if (!dontFocus) {
+			this.domElement.focus();
+		} else {
+			this._selected = false;
+		}
 	}
 	open() {
 		function getElementCoordinates(node) {
