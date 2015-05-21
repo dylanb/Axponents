@@ -194,7 +194,7 @@ export class AriaMenu {
 			this.blurTimer = setTimeout(function () {
 				that.close(true);
 				this.blurTimer = undefined;
-			}, 1);
+			}, 500);
 		}
 	}
 	focus() {

@@ -17,8 +17,19 @@ aria-menuitem[aria-expanded=true] {
 aria-menuitem:focus {
 	outline: none;
 }
+
 aria-menuitem:hover,
 aria-menuitem:focus {
+	background: #CCCCCC;
+	color: #000000;
+}
+
+aria-menu:hover aria-menuitem:focus {
+	background: #999999;
+	color:#fff;
+}
+
+aria-menu:hover aria-menuitem:hover {
 	background: #CCCCCC;
 	color: #000000;
 }
