@@ -21,7 +21,11 @@ var blurTimer;
 	},
 	hostProperties: {
 		'role': 'attr.role',
-		'value': 'attr.value'
+		'value': 'attr.value',
+		'styleLeft': 'style.left',
+		'styleTop': 'style.top',
+		'styleWidth': 'style.width',
+		'open': 'class.open'
 	}
 })
 @View({
@@ -41,6 +45,10 @@ export class AriaMenu {
 	role: string;
 
 	_value: string;
+
+	styleWidth: string;
+	styleTop: string;
+	styleLeft: string;
 
 	constructor(el: ElementRef,
 		@Optional() @Parent() parentMenuitem: AriaMenuitem) {
@@ -65,18 +73,23 @@ export class AriaMenu {
 		return (this.parent && this.children.length === 1);
 	}
 	takeFocus(width, left, top, height) {
+		var that = this;
 		this.value = '';
-		this.domElement.classList.add('open');
-		this.domElement.style.width = width + 'px';
-		this.domElement.style.left = left + 'px';
-		this.domElement.style.top = top + height + 'px';
+		this.open = true;
+		this.styleWidth = width + 'px';
+		this.styleLeft = left + 'px';
+		this.styleTop = top + height + 'px';
 		this.children.forEach(function (child) {
 			child.removeFocus();
 		});
-		this.children[0].takeFocus();
+		setTimeout(function () {
+			// required because the class changes are async
+			// see https://github.com/angular/angular/issues/2090
+			that.children[0].takeFocus();
+		}, 0);
 	}
 	removeFocus() {
-		this.domElement.classList.remove('open');
+		this.open = false;
 	}
 	setSelected(child) {
 		this.children.forEach(function (ch) {

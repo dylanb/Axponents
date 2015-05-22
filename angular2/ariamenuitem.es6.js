@@ -19,6 +19,7 @@ import {AriaMenubar} from 'ariamenubar';
 		'tabindex': 'tabindex',
 		'expanded': 'attr.aria-expanded',
 		'haspopup': 'attr.aria-haspopup',
+		'styleWidth': 'style.width'
 	}
 })
 @View({
@@ -44,6 +45,8 @@ export class AriaMenuitem {
 	haspopup: boolean;
 
 	tabindex: number;
+
+	styleWidth: string;
 
 	constructor(el: ElementRef,
 		@Attribute('value') value:string,
@@ -196,7 +199,7 @@ export class AriaMenuitem {
 	 * width property
 	 */
 	set width(value) {
-		this.domElement.style.width = value
+		this.styleWidth = value;
 	}
 	/*
 	 * hasMenu property
